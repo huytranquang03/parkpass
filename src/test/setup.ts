@@ -5,6 +5,10 @@ import { afterAll, afterEach, beforeAll } from "vitest";
 
 afterEach(() => {
   cleanup();
+  // Mock flags/orders must not leak between tests. Keep unrelated keys untouched.
+  for (const key of ["pp:chaos", "pp:large", "pp:orders"]) {
+    localStorage.removeItem(key);
+  }
 });
 
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
