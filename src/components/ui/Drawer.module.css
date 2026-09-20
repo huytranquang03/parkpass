@@ -1,0 +1,47 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: rgb(0 0 0 / 50%);
+  cursor: pointer;
+}
+
+.drawer {
+  position: relative;
+  z-index: 1;
+  width: 420px;
+  height: 100%;
+  padding: 24px;
+  overflow-y: auto;
+  background: white;
+  box-shadow: -8px 0 24px rgb(0 0 0 / 20%);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.header h2 {
+  margin: 0;
+}
+
+.header button {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+}

@@ -6,7 +6,7 @@ import { afterAll, afterEach, beforeAll } from "vitest";
 afterEach(() => {
   cleanup();
   // Mock flags/orders must not leak between tests. Keep unrelated keys untouched.
-  for (const key of ["pp:chaos", "pp:large", "pp:orders"]) {
+  for (const key of ["pp:chaos", "pp:large", "pp:orders", "parkpass-cart"]) {
     localStorage.removeItem(key);
   }
 });

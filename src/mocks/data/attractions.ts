@@ -25,7 +25,11 @@ function generateAttractions(count: number): Attraction[] {
       parkId: park.id,
       category,
       description: `A ${category.toLowerCase()} attraction at ${park.name}.`,
-      images: [`https://placehold.co/600x400?text=Attraction+${number}`],
+      images: [
+        `https://placehold.co/1200x800?text=Attraction+${number}+Image+1`,
+        `https://placehold.co/1200x800?text=Attraction+${number}+Image+2`,
+        `https://placehold.co/1200x800?text=Attraction+${number}+Image+3`,
+      ],
       rating: 3 + (index % 20) / 10,
       prices: {
         ADULT: basePrice,

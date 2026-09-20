@@ -1,13 +1,44 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import App from "./App";
+import { createMemoryRouter, RouterProvider } from "react-router";
+import { CartProvider } from "@/features/cart/CartProvider";
+import AppLayout from "./AppLayout";
 
-describe("App", () => {
-  it("renders the starter heading", () => {
-    render(<App />);
+describe("app shell", () => {
+  it("renders the shared layout and current route", () => {
+    const router = createMemoryRouter(
+      [
+        {
+          element: (
+            <CartProvider>
+              <AppLayout />
+            </CartProvider>
+          ),
+          children: [
+            {
+              path: "/",
+              element: <h1>Danh sách trải nghiệm</h1>,
+            },
+          ],
+        },
+      ],
+      { initialEntries: ["/"] },
+    );
+
+    render(<RouterProvider router={router} />);
 
     expect(
-      screen.getByRole("heading", { level: 1, name: /get started/i }),
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Danh sách trải nghiệm",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "ParkPass" })).toHaveAttribute(
+      "href",
+      "/",
+    );
+    expect(
+      screen.getByRole("button", { name: /mở giỏ hàng, hiện có 0 vé/i }),
     ).toBeInTheDocument();
   });
 });

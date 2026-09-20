@@ -5,6 +5,11 @@ export interface CategoryOption {
   label: string;
 }
 
+export interface TicketOption {
+  type: TicketType;
+  label: string;
+}
+
 export interface Park {
   id: string;
   name: string;
