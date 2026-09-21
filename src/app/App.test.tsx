@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { CartProvider } from "@/features/cart/CartProvider";
+import { ThemeContext } from "@/features/theme/themeContext";
 import AppLayout from "./AppLayout";
 
 describe("app shell", () => {
@@ -11,7 +12,11 @@ describe("app shell", () => {
         {
           element: (
             <CartProvider>
-              <AppLayout />
+              <ThemeContext.Provider
+                value={{ theme: "light", toggleTheme: () => {} }}
+              >
+                <AppLayout />
+              </ThemeContext.Provider>
             </CartProvider>
           ),
           children: [

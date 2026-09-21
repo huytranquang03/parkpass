@@ -1,0 +1,26 @@
+.button {
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+
+  font: inherit;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+.primary {
+  background-color: #2563eb;
+  color: white;
+}
+
+.secondary {
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

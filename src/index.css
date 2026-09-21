@@ -8,6 +8,18 @@
   color: var(--text);
   background-color: var(--bg);
   color-scheme: light;
+  --surface: #ffffff;
+  --border: #cbd5e1;
+  --muted: #64748b;
+}
+
+:root[data-theme="dark"] {
+  --text: #e2e8f0;
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --border: #334155;
+  color-scheme: dark;
+  --muted: #94a3b8;
 }
 
 *,

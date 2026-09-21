@@ -1,6 +1,8 @@
 import { Link } from "react-router";
 import type { Attraction } from "../types";
 import styles from "./AttractionCard.module.css";
+import Badge from "@/components/ui/Badge";
+import Card from "@/components/ui/Card";
 
 interface AttractionCardProps {
   attraction: Attraction;
@@ -21,19 +23,21 @@ export default function AttractionCard({
     currency: "VND",
   }).format(lowestPrice);
   return (
-    <article className={styles.card}>
-      <img
-        className={styles.image}
-        src={attraction.images[0]}
-        alt={attraction.name}
-      />
-      <p>{attraction.category}</p>
-      <h2>
-        <Link to={`/attractions/${attraction.id}`}>{attraction.name}</Link>
-      </h2>
-      <p>{parkName}</p>
-      <p className={styles.price}>Từ {formattedPrice}</p>
-      <p>Đánh giá: {attraction.rating}/5</p>
-    </article>
+    <Card>
+      <Card.Image src={attraction.images[0]} alt={attraction.name} />
+
+      <Card.Body>
+        <Badge>{attraction.category}</Badge>
+        <h2>
+          <Link to={`/attractions/${attraction.id}`}>{attraction.name}</Link>
+        </h2>
+        <p>{parkName}</p>
+      </Card.Body>
+
+      <Card.Footer>
+        <p className={styles.price}>Từ {formattedPrice}</p>
+        <p>Đánh giá: {attraction.rating}/5</p>
+      </Card.Footer>
+    </Card>
   );
 }

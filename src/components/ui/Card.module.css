@@ -1,0 +1,21 @@
+.card {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+.body {
+  padding: 16px;
+}
+
+.footer {
+  padding: 16px;
+}

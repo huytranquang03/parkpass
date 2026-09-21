@@ -1,0 +1,18 @@
+import { createContext, useContext } from "react";
+
+export type Theme = "light" | "dark";
+
+interface ThemeContextValue {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
+export const ThemeContext = createContext<ThemeContextValue | null>(null);
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useTheme phải nằm trong ThemeProvider");
+  }
+  return context;
+}

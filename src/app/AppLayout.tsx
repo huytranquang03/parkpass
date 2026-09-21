@@ -4,6 +4,7 @@ import { useCart } from "@/features/cart/cartContext";
 import { useState } from "react";
 import Drawer from "@/components/ui/Drawer";
 import CartItemRow from "@/features/cart/components/CartItemRow";
+import { useTheme } from "@/features/theme/themeContext";
 
 const currencyFormatter = new Intl.NumberFormat("vi-VN", {
   style: "currency",
@@ -13,6 +14,7 @@ const currencyFormatter = new Intl.NumberFormat("vi-VN", {
 export default function AppLayout() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { items, totalQuantity, totalPrice, dispatch } = useCart();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <>
@@ -20,7 +22,13 @@ export default function AppLayout() {
         header={
           <nav aria-label="Điều hướng chính">
             <Link to="/">ParkPass</Link>
-
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-pressed={theme === "dark"}
+            >
+              Toggle Theme
+            </button>
             <button
               type="button"
               aria-label={`Mở giỏ hàng, hiện có ${totalQuantity} vé`}
@@ -75,6 +83,9 @@ export default function AppLayout() {
             <p>
               <strong>Tổng cộng: {currencyFormatter.format(totalPrice)}</strong>
             </p>
+            <Link to="/checkout" onClick={() => setIsCartOpen(false)}>
+              Tiến hành thanh toán
+            </Link>
           </>
         )}
       </Drawer>

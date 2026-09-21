@@ -115,7 +115,7 @@ export default function AttractionListPage() {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set("q", value);
     nextParams.set("page", "1");
-    setSearchParams(nextParams);
+    setSearchParams(nextParams, { replace: true });
   }
 
   function handleParkChange(value: string) {

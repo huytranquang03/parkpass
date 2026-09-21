@@ -1,5 +1,9 @@
 import { useRef, useState, type SubmitEvent } from "react";
 import styles from "./CheckoutPage.module.css";
+import { useCart } from "@/features/cart/cartContext";
+import TicketSummaryCard from "../components/TicketSummaryCard";
+import { Link } from "react-router";
+import Button from "@/components/ui/Button";
 
 interface CheckoutFormValues {
   fullName: string;
@@ -35,6 +39,8 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<CheckoutFormErrors>({});
   const [isCheckingPromo, setIsCheckingPromo] = useState(false);
   const [promoMessage, setPromoMessage] = useState<string | null>(null);
+
+  const { items, totalPrice } = useCart();
 
   const fullNameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -153,9 +159,20 @@ export default function CheckoutPage() {
     }
   }
 
+  if (items.length === 0) {
+    return (
+      <section className={styles.page}>
+        <h1>Thông tin đặt vé</h1>
+        <p role="status">Giỏ hàng đang trống. Hãy chọn vé trước khi đặt.</p>
+        <Link to="/">Xem danh sách trải nghiệm</Link>
+      </section>
+    );
+  }
+
   return (
     <section className={styles.page}>
       <h1>Thông tin đặt vé</h1>
+      <TicketSummaryCard items={items} totalPrice={totalPrice} />
       <form className={styles.form} noValidate onSubmit={handleSubmit}>
         <div className={styles.field}>
           <label htmlFor="full-name">Họ và tên</label>
@@ -272,13 +289,9 @@ export default function CheckoutPage() {
             {errors.acceptTerms}
           </p>
         )}
-        <button
-          className={styles.submitButton}
-          type="submit"
-          disabled={isCheckingPromo}
-        >
+        <Button type="submit" disabled={isCheckingPromo}>
           {isCheckingPromo ? "Đang kiểm tra mã..." : "Xác nhận đặt vé"}
-        </button>
+        </Button>
       </form>
     </section>
   );
