@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import QuantityStepper from "@/components/ui/QuantityStepper";
 import type { CartItem } from "@/features/cart/types";
 import { useCart } from "@/features/cart/cartContext";
+import { useFetch } from "@/hooks/useFetch";
 
 const TICKET_OPTIONS: TicketOption[] = [
   { type: "ADULT", label: "Người lớn" },
@@ -26,7 +27,17 @@ const INITIAL_QUANTITIES: Record<TicketType, number> = {
 
 export default function AttractionDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [attraction, setAttraction] = useState<Attraction | null>(null);
+  const attractionUrl = `${import.meta.env.VITE_API_BASE_URL}/attractions/${id ?? "__missing__"}`;
+
+  const {
+    status,
+    data: attraction,
+    error,
+    responseStatus,
+    refetch,
+  } = useFetch<Attraction>(attractionUrl);
+
+  const isNotFound = status === "error" && responseStatus === 404;
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const lastImageTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -34,11 +45,6 @@ export default function AttractionDetailPage() {
   const [quantities, setQuantities] =
     useState<Record<TicketType, number>>(INITIAL_QUANTITIES);
 
-  const [status, setStatus] = useState<
-    "loading" | "success" | "error" | "not-found"
-  >("loading");
-
-  const [error, setError] = useState<string | null>(null);
   const totalQuantity = Object.values(quantities).reduce(
     (total, quantity) => total + quantity,
     0,
@@ -46,41 +52,46 @@ export default function AttractionDetailPage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const { dispatch } = useCart();
+  // const [status, setStatus] = useState<
+  //   "loading" | "success" | "error" | "not-found"
+  // >("loading");
 
-  useEffect(() => {
-    if (!id) {
-      return;
-    }
-    const controller = new AbortController();
-    async function loadAttraction() {
-      try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL;
-        const response = await fetch(`${baseUrl}/attractions/${id}`, {
-          signal: controller.signal,
-        });
-        if (response.status === 404) {
-          setStatus("not-found");
-          return;
-        }
-        if (!response.ok) {
-          throw new Error("Không tải được thông tin trải nghiệm");
-        }
-        const result: Attraction = await response.json();
-        setAttraction(result);
-        setStatus("success");
-      } catch {
-        if (controller.signal.aborted) {
-          return;
-        }
-        setError("Không tải được thông tin trải nghiệm");
-        setStatus("error");
-      }
-    }
-    loadAttraction();
-    return () => {
-      controller.abort();
-    };
-  }, [id]);
+  // const [error, setError] = useState<string | null>(null);
+
+  // useEffect(() => {
+  //   if (!id) {
+  //     return;
+  //   }
+  //   const controller = new AbortController();
+  //   async function loadAttraction() {
+  //     try {
+  //       const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  //       const response = await fetch(`${baseUrl}/attractions/${id}`, {
+  //         signal: controller.signal,
+  //       });
+  //       if (response.status === 404) {
+  //         setStatus("not-found");
+  //         return;
+  //       }
+  //       if (!response.ok) {
+  //         throw new Error("Không tải được thông tin trải nghiệm");
+  //       }
+  //       const result: Attraction = await response.json();
+  //       setAttraction(result);
+  //       setStatus("success");
+  //     } catch {
+  //       if (controller.signal.aborted) {
+  //         return;
+  //       }
+  //       setError("Không tải được thông tin trải nghiệm");
+  //       setStatus("error");
+  //     }
+  //   }
+  //   loadAttraction();
+  //   return () => {
+  //     controller.abort();
+  //   };
+  // }, [id]);
 
   useEffect(() => {
     if (!selectedImage) {
@@ -157,9 +168,17 @@ export default function AttractionDetailPage() {
     <>
       {status === "loading" && <p>Đang tải...</p>}
 
-      {status === "error" && <p role="alert">{error}</p>}
+      {status === "error" && !isNotFound && (
+        <div>
+          <p role="alert">{error ?? "Không tải được thông tin trải nghiệm"}</p>
 
-      {status === "not-found" && (
+          <button type="button" onClick={refetch}>
+            Thử lại
+          </button>
+        </div>
+      )}
+
+      {isNotFound && (
         <section>
           <h1>Không tìm thấy trải nghiệm</h1>
           <p>Trải nghiệm này không tồn tại hoặc đã bị xóa.</p>

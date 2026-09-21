@@ -1,5 +1,4 @@
 import type {
-  Attraction,
   AttractionListResponse,
   Category,
   CategoryOption,
@@ -7,10 +6,12 @@ import type {
 } from "../types";
 import AttractionCard from "../components/AttractionCard";
 import styles from "./AttractionListPage.module.css";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { useSearchParams } from "react-router";
 import { useDebounce } from "@/hooks/useDebounce";
 import AttractionCardSkeleton from "../components/AttractionCardSkeleton";
+import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
+import { useFetch, type FetchStatus } from "@/hooks/useFetch";
 
 const CATEGORY_OPTIONS: CategoryOption[] = [
   { value: "THRILL", label: "Cảm giác mạnh" },
@@ -34,101 +35,73 @@ export default function AttractionListPage() {
   const pageFromUrl = Number(searchParams.get("page") ?? "1");
   const currentPage =
     Number.isInteger(pageFromUrl) && pageFromUrl > 0 ? pageFromUrl : 1;
+
   // let currentPage = 1;
   // if (Number.isInteger(pageFromUrl) && pageFromUrl > 0) {
   // 	return currentPage = pageFromUrl;
   // }
 
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const attractionParams = new URLSearchParams(searchParams);
+  attractionParams.set("q", debouncedSearchText);
+  attractionParams.set("page", String(currentPage));
+  attractionParams.set("limit", String(PAGE_SIZE));
 
-  const [retryCount, setRetryCount] = useState(0);
-  const [attractions, setAttractions] = useState<Attraction[]>([]);
-  const [parks, setParks] = useState<Park[]>([]);
-  const [total, setTotal] = useState(0);
+  const attractionsUrl = `${import.meta.env.VITE_API_BASE_URL}/attractions?${attractionParams.toString()}`;
+  const {
+    status: attractionsStatus,
+    data: attractionsResponse,
+    error: attractionsError,
+    refetch: refetchAttractions,
+  } = useFetch<AttractionListResponse>(attractionsUrl);
 
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading",
-  );
-  const [error, setError] = useState<string | null>(null);
-
+  const attractions = attractionsResponse?.data ?? [];
+  const total = attractionsResponse?.total ?? 0;
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
-  useEffect(() => {
-    if (searchText !== debouncedSearchText) {
+  const parksUrl = `${import.meta.env.VITE_API_BASE_URL}/parks`;
+  const {
+    status: parksStatus,
+    data: parksData,
+    error: parksError,
+    refetch: refetchParks,
+  } = useFetch<Park[]>(parksUrl);
+
+  const parks = parksData ?? [];
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  let pageStatus: FetchStatus;
+
+  if (attractionsStatus === "error" || parksStatus === "error") {
+    pageStatus = "error";
+  } else if (
+    searchText !== debouncedSearchText ||
+    attractionsStatus === "loading" ||
+    parksStatus === "loading"
+  ) {
+    pageStatus = "loading";
+  } else {
+    pageStatus = "success";
+  }
+
+  const pageError =
+    attractionsError ?? parksError ?? "Không tải được danh sách";
+
+  useKeyboardShortcut("/", (event) => {
+    const target = event.target;
+
+    const isTyping =
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      (target instanceof HTMLElement && target.isContentEditable);
+
+    if (isTyping) {
       return;
     }
-    const controller = new AbortController();
-    async function loadAttractions() {
-      try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL;
-        const apiParams = new URLSearchParams(searchParams);
-        apiParams.set("q", debouncedSearchText);
-        apiParams.set("page", String(currentPage));
-        apiParams.set("limit", String(PAGE_SIZE));
 
-        // const response = await fetch(
-        // 	`${baseUrl}/attractions?q=${debouncedSearchText}&park=${selectedPark}&sort=${selectedSort}&page=1&limit=12`,
-        // );
-
-        const response = await fetch(
-          `${baseUrl}/attractions?${apiParams.toString()}`,
-          { signal: controller.signal },
-        );
-
-        if (!response.ok) {
-          throw new Error("Không tải được danh sách");
-        }
-        const result: AttractionListResponse = await response.json();
-        const parksResponse = await fetch(`${baseUrl}/parks`, {
-          signal: controller.signal,
-        });
-
-        if (!parksResponse.ok) {
-          throw new Error("Không tải được danh sách khu vui chơi");
-        }
-
-        const parksResult: Park[] = await parksResponse.json();
-
-        setTotal(result.total);
-        setAttractions(result.data);
-        setParks(parksResult);
-        setStatus("success");
-      } catch {
-        if (controller.signal.aborted) {
-          return;
-        }
-        setError("Không tải được danh sách");
-        setStatus("error");
-      }
-    }
-    loadAttractions();
-    return () => {
-      controller.abort();
-    };
-  }, [searchParams, debouncedSearchText, searchText, currentPage, retryCount]);
-
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      const target = event.target;
-
-      const isTyping =
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        (target instanceof HTMLElement && target.isContentEditable);
-
-      if (event.key !== "/" || isTyping) {
-        return;
-      }
-
-      event.preventDefault();
-      searchInputRef.current?.focus();
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
+    event.preventDefault();
+    searchInputRef.current?.focus();
+  });
 
   function getParkName(parkId: string) {
     const park = parks.find((item) => item.id === parkId);
@@ -142,8 +115,6 @@ export default function AttractionListPage() {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set("q", value);
     nextParams.set("page", "1");
-    setStatus("loading");
-    setError(null);
     setSearchParams(nextParams);
   }
 
@@ -155,8 +126,6 @@ export default function AttractionListPage() {
       nextParams.delete("park");
     }
     nextParams.set("page", "1");
-    setStatus("loading");
-    setError(null);
     setSearchParams(nextParams);
   }
 
@@ -168,8 +137,6 @@ export default function AttractionListPage() {
       nextParams.delete("sort");
     }
     nextParams.set("page", "1");
-    setStatus("loading");
-    setError(null);
     setSearchParams(nextParams);
   }
 
@@ -181,8 +148,6 @@ export default function AttractionListPage() {
       nextParams.delete("category", category);
     }
     nextParams.set("page", "1");
-    setStatus("loading");
-    setError(null);
     setSearchParams(nextParams);
   }
 
@@ -192,25 +157,23 @@ export default function AttractionListPage() {
     }
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set("page", String(nextPage));
-    setStatus("loading");
-    setError(null);
     setSearchParams(nextParams);
   }
 
   function handleClearFilters() {
     const nextParams = new URLSearchParams();
     nextParams.set("page", "1");
-    setStatus("loading");
-    setError(null);
     setSearchParams(nextParams);
   }
 
   function handleRetry() {
-    setStatus("loading");
-    setError(null);
-    setRetryCount((prev) => prev + 1);
+    if (attractionsStatus === "error") {
+      refetchAttractions();
+    }
+    if (parksStatus === "error") {
+      refetchParks();
+    }
   }
-
   return (
     <section className={styles.page}>
       <h1>Khám phá trải nghiệm</h1>
@@ -264,7 +227,8 @@ export default function AttractionListPage() {
           </label>
         ))}
       </fieldset>
-      {status === "loading" && (
+
+      {pageStatus === "loading" && (
         <div
           className={styles.grid}
           role="status"
@@ -276,9 +240,9 @@ export default function AttractionListPage() {
         </div>
       )}
 
-      {status === "error" && (
+      {pageStatus === "error" && (
         <div className={styles.errorState}>
-          <p role="alert">{error}</p>
+          <p role="alert">{pageError}</p>
 
           <button type="button" onClick={handleRetry}>
             Thử lại
@@ -286,7 +250,7 @@ export default function AttractionListPage() {
         </div>
       )}
 
-      {status === "success" && attractions.length === 0 && (
+      {pageStatus === "success" && attractions.length === 0 && (
         <div className={styles.emptyState}>
           <h2>Không tìm thấy trải nghiệm</h2>
           <p>Hãy thử thay đổi từ khoá hoặc bộ lọc</p>
@@ -296,7 +260,7 @@ export default function AttractionListPage() {
         </div>
       )}
 
-      {status === "success" && attractions.length > 0 && (
+      {pageStatus === "success" && attractions.length > 0 && (
         <>
           <div className={styles.grid}>
             {attractions.map((item) => (
