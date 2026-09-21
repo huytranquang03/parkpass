@@ -1,0 +1,43 @@
+.page {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 24px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field input {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.error {
+  margin: 0;
+  font-size: 14px;
+  color: #d32f2f;
+}
+
+.terms {
+  display: flex;
+  gap: 8px;
+}
+
+.submitButton {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+}

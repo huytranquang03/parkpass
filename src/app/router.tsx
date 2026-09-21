@@ -3,6 +3,7 @@ import AttractionListPage from "@/features/attractions/pages/AttractionListPage"
 import AttractionDetailPage from "@/features/attractions/pages/AttractionDetailPage";
 import AppLayout from "./AppLayout";
 import NotFoundPage from "./NotFoundPage";
+import CheckoutPage from "@/features/checkout/pages/CheckoutPage";
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ export const router = createBrowserRouter([
       {
         path: "*",
         element: <NotFoundPage />,
+      },
+      {
+        path: "/checkout",
+        element: <CheckoutPage />,
       },
     ],
   },
