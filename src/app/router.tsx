@@ -4,6 +4,8 @@ import AttractionDetailPage from "@/features/attractions/pages/AttractionDetailP
 import AppLayout from "./AppLayout";
 import NotFoundPage from "./NotFoundPage";
 import CheckoutPage from "@/features/checkout/pages/CheckoutPage";
+import LoginPage from "@/features/auth/pages/LoginPage";
+import RequireAuth from "@/features/auth/RequireAuth";
 
 export const router = createBrowserRouter([
   {
@@ -22,8 +24,12 @@ export const router = createBrowserRouter([
         element: <NotFoundPage />,
       },
       {
-        path: "/checkout",
-        element: <CheckoutPage />,
+        element: <RequireAuth />,
+        children: [{ path: "/checkout", element: <CheckoutPage /> }],
+      },
+      {
+        path: "/login",
+        element: <LoginPage />,
       },
     ],
   },

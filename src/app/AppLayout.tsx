@@ -5,6 +5,7 @@ import { useState } from "react";
 import Drawer from "@/components/ui/Drawer";
 import CartItemRow from "@/features/cart/components/CartItemRow";
 import { useTheme } from "@/features/theme/themeContext";
+import { useAuth } from "@/features/auth/authContext";
 
 const currencyFormatter = new Intl.NumberFormat("vi-VN", {
   style: "currency",
@@ -15,6 +16,7 @@ export default function AppLayout() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { items, totalQuantity, totalPrice, dispatch } = useCart();
   const { theme, toggleTheme } = useTheme();
+  const { user, status, logout } = useAuth();
 
   return (
     <>
@@ -39,6 +41,17 @@ export default function AppLayout() {
                 <span aria-hidden="true">{totalQuantity}</span>
               )}
             </button>
+
+            {status === "anonymous" && <Link to="/login">Đăng nhập</Link>}
+
+            {status === "authenticated" && user && (
+              <>
+                <span>Xin chào, {user.name}</span>
+                <button type="button" onClick={logout}>
+                  Đăng xuất
+                </button>
+              </>
+            )}
           </nav>
         }
       >

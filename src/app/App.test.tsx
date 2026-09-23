@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { CartProvider } from "@/features/cart/CartProvider";
 import { ThemeContext } from "@/features/theme/themeContext";
+import { AuthContext } from "@/features/auth/authContext";
 import AppLayout from "./AppLayout";
 
 describe("app shell", () => {
@@ -15,7 +16,17 @@ describe("app shell", () => {
               <ThemeContext.Provider
                 value={{ theme: "light", toggleTheme: () => {} }}
               >
-                <AppLayout />
+                <AuthContext.Provider
+                  value={{
+                    user: null,
+                    token: null,
+                    status: "anonymous",
+                    login: () => Promise.resolve(),
+                    logout: () => {},
+                  }}
+                >
+                  <AppLayout />
+                </AuthContext.Provider>
               </ThemeContext.Provider>
             </CartProvider>
           ),
@@ -41,6 +52,10 @@ describe("app shell", () => {
     expect(screen.getByRole("link", { name: "ParkPass" })).toHaveAttribute(
       "href",
       "/",
+    );
+    expect(screen.getByRole("link", { name: "Đăng nhập" })).toHaveAttribute(
+      "href",
+      "/login",
     );
     expect(
       screen.getByRole("button", { name: /mở giỏ hàng, hiện có 0 vé/i }),

@@ -1,0 +1,10 @@
+.page {
+  max-width: 420px;
+  margin: 48px auto;
+  padding: 24px;
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+}

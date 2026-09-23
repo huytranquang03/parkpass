@@ -2,12 +2,15 @@ import { RouterProvider } from "react-router/dom";
 import { router } from "./router";
 import { CartProvider } from "@/features/cart/CartProvider";
 import { ThemeProvider } from "@/features/theme/ThemeProvider";
+import { AuthProvider } from "@/features/auth/AuthProvider";
 
 export default function App() {
   return (
     <ThemeProvider>
       <CartProvider>
-        <RouterProvider router={router} />
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
       </CartProvider>
     </ThemeProvider>
   );
