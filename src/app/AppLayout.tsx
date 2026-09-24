@@ -46,6 +46,7 @@ export default function AppLayout() {
 
             {status === "authenticated" && user && (
               <>
+                <Link to="/orders">Đơn hàng của tôi</Link>
                 <span>Xin chào, {user.name}</span>
                 <button type="button" onClick={logout}>
                   Đăng xuất

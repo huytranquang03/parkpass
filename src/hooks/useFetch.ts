@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 export type FetchStatus = "loading" | "error" | "success";
 
-export function useFetch<T>(url: string) {
+export function useFetch<T>(url: string, requestInit?: RequestInit) {
   const [status, setStatus] = useState<FetchStatus>("loading");
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +19,10 @@ export function useFetch<T>(url: string) {
       setResponseStatus(null);
 
       try {
-        const response = await fetch(url, { signal: controller.signal });
+        const response = await fetch(url, {
+          ...requestInit,
+          signal: controller.signal,
+        });
         setResponseStatus(response.status);
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`);
@@ -44,7 +47,7 @@ export function useFetch<T>(url: string) {
     return () => {
       controller.abort();
     };
-  }, [url, requestVersion]);
+  }, [url, requestVersion, requestInit]);
 
   function refetch() {
     setRequestVersion((currentVersion) => currentVersion + 1);

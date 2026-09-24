@@ -2,8 +2,11 @@ import { useRef, useState, type SubmitEvent } from "react";
 import styles from "./CheckoutPage.module.css";
 import { useCart } from "@/features/cart/cartContext";
 import TicketSummaryCard from "../components/TicketSummaryCard";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Button from "@/components/ui/Button";
+import { useAuth } from "@/features/auth/authContext";
+import type { CreateOrderRequest, Order } from "@/features/orders/types";
+import type { ApiError } from "@/lib/apiError";
 
 interface CheckoutFormValues {
   fullName: string;
@@ -40,7 +43,12 @@ export default function CheckoutPage() {
   const [isCheckingPromo, setIsCheckingPromo] = useState(false);
   const [promoMessage, setPromoMessage] = useState<string | null>(null);
 
-  const { items, totalPrice } = useCart();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const { items, totalPrice, dispatch } = useCart();
+  const { token } = useAuth();
+  const navigate = useNavigate();
 
   const fullNameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -50,6 +58,14 @@ export default function CheckoutPage() {
   const acceptTermsRef = useRef<HTMLInputElement>(null);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  let submitButtonText = "Xác nhận đặt vé";
+
+  if (isCheckingPromo) {
+    submitButtonText = "Đang kiểm tra mã...";
+  } else if (isSubmitting) {
+    submitButtonText = "Đang tạo đơn...";
+  }
 
   function handleTextChange(field: TextFieldName, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -66,7 +82,7 @@ export default function CheckoutPage() {
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (isCheckingPromo) return;
+    if (isCheckingPromo || isSubmitting) return;
 
     const nextErrors: CheckoutFormErrors = {};
     if (!values.fullName.trim()) {
@@ -129,33 +145,109 @@ export default function CheckoutPage() {
     }
 
     const code = values.promoCode.trim().toUpperCase();
-    if (!code) {
+
+    if (code) {
+      setIsCheckingPromo(true);
       setPromoMessage(null);
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/promo-codes/${encodeURIComponent(code)}`,
+        );
+        if (response.status === 404) {
+          throw new Error("Mã khuyến mãi không tồn tại");
+        }
+        if (!response.ok) {
+          throw new Error("Không kiểm tra được mã. Vui lòng thử lại");
+        }
+        setPromoMessage("Mã khuyến mãi hợp lệ");
+      } catch (error) {
+        let message: string;
+        if (error instanceof Error) {
+          message = error.message;
+        } else {
+          message = "Không kiểm tra được mã";
+        }
+        setErrors((current) => ({ ...current, promoCode: message }));
+        promoCodeRef.current?.focus();
+      } finally {
+        setIsCheckingPromo(false);
+      }
+    } else {
+      setPromoMessage(null);
+    }
+
+    if (!token) {
+      setSubmitError("Phiên đăng nhập không hợp lệ");
       return;
     }
 
-    setIsCheckingPromo(true);
-    setPromoMessage(null);
+    const requestBody: CreateOrderRequest = {
+      items: items.map((item) => ({
+        attractionId: item.attractionId,
+        ticketType: item.ticketType,
+        quantity: item.quantity,
+      })),
+      fullName: values.fullName.trim(),
+      email: values.email.trim(),
+      phone: normalizedPhone,
+      visitDate: values.visitDate,
+      acceptTerms: values.acceptTerms,
+    };
+    if (code) {
+      requestBody.promoCode = code;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/promo-codes/${encodeURIComponent(code)}`,
+        `${import.meta.env.VITE_API_BASE_URL}/orders`,
+        {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestBody),
+        },
       );
-      if (response.status === 404) {
-        throw new Error("Mã khuyến mãi không tồn tại");
+
+      const result = (await response.json()) as Order | ApiError;
+
+      if (response.status === 422) {
+        const apiError = result as ApiError;
+        const fieldErrors = (apiError.fieldErrors ?? {}) as CheckoutFormErrors;
+
+        setErrors(fieldErrors);
+        if (fieldErrors.fullName) fullNameRef.current?.focus();
+        else if (fieldErrors.email) emailRef.current?.focus();
+        else if (fieldErrors.phone) phoneRef.current?.focus();
+        else if (fieldErrors.visitDate) visitDateRef.current?.focus();
+        else if (fieldErrors.promoCode) promoCodeRef.current?.focus();
+        else if (fieldErrors.acceptTerms) acceptTermsRef.current?.focus();
+        return;
       }
+
       if (!response.ok) {
-        throw new Error("Không kiểm tra được mã. Vui lòng thử lại");
+        const apiError = result as ApiError;
+        throw new Error(apiError.message || "Không thể tạo đơn hàng");
       }
-      setPromoMessage("Mã khuyến mãi hợp lệ");
+
+      const order = result as Order;
+      dispatch({ type: "CLEAR_CART" });
+      navigate(`/orders/${order.id}`, {
+        replace: true,
+        state: { successMessage: "Đặt vé thành công" },
+      });
     } catch (error) {
       if (error instanceof Error) {
-        setErrors({ promoCode: error.message });
+        setSubmitError(error.message);
       } else {
-        setErrors({ promoCode: "Không kiểm tra được mã" });
+        setSubmitError("Không thể tạo đơn hàng");
       }
-      promoCodeRef.current?.focus();
     } finally {
-      setIsCheckingPromo(false);
+      setIsSubmitting(false);
     }
   }
 
@@ -289,8 +381,9 @@ export default function CheckoutPage() {
             {errors.acceptTerms}
           </p>
         )}
-        <Button type="submit" disabled={isCheckingPromo}>
-          {isCheckingPromo ? "Đang kiểm tra mã..." : "Xác nhận đặt vé"}
+        {submitError && <p role="alert">{submitError}</p>}
+        <Button type="submit" disabled={isCheckingPromo || isSubmitting}>
+          {submitButtonText}
         </Button>
       </form>
     </section>

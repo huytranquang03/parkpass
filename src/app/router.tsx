@@ -6,6 +6,8 @@ import NotFoundPage from "./NotFoundPage";
 import CheckoutPage from "@/features/checkout/pages/CheckoutPage";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import RequireAuth from "@/features/auth/RequireAuth";
+import OrderPage from "@/features/orders/pages/OrdersPage";
+import OrderDetailPage from "@/features/orders/pages/OrderDetailPage";
 
 export const router = createBrowserRouter([
   {
@@ -25,7 +27,14 @@ export const router = createBrowserRouter([
       },
       {
         element: <RequireAuth />,
-        children: [{ path: "/checkout", element: <CheckoutPage /> }],
+        children: [
+          { path: "/checkout", element: <CheckoutPage /> },
+          { path: "/orders", element: <OrderPage /> },
+          {
+            path: "/orders/:id",
+            element: <OrderDetailPage />,
+          },
+        ],
       },
       {
         path: "/login",

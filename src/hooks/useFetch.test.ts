@@ -37,6 +37,28 @@ describe("useFetch", () => {
     expect(result.current.responseStatus).toBe(200);
   });
 
+  it("forwards request options while providing its own abort signal", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonResponse({ message: "loaded" }));
+    vi.stubGlobal("fetch", fetchMock);
+    const requestInit: RequestInit = {
+      headers: { Authorization: "Bearer test-token" },
+    };
+
+    renderHook(() => useFetch<TestData>("/api/protected-example", requestInit));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    const calledInit = fetchMock.mock.calls[0]?.[1] as RequestInit | undefined;
+    expect(new Headers(calledInit?.headers).get("Authorization")).toBe(
+      "Bearer test-token",
+    );
+    expect(calledInit?.signal).toBeInstanceOf(AbortSignal);
+  });
+
   it("returns an error for a non-successful response", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({}, 500)));
 

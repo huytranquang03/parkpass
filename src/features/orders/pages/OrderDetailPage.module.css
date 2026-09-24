@@ -1,0 +1,48 @@
+.page {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.ticketList {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.ticketItem {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.ticketItem p {
+  margin: 6px 0 0;
+}
+
+.summary {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.total {
+  font-size: 1.125rem;
+}
+
+.toast {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #15803d;
+  color: white;
+}
