@@ -4,14 +4,15 @@ import type {
   CategoryOption,
   Park,
 } from "../types";
-import AttractionCard from "../components/AttractionCard";
 import styles from "./AttractionListPage.module.css";
 import { useRef } from "react";
 import { useSearchParams } from "react-router";
 import { useDebounce } from "@/hooks/useDebounce";
-import AttractionCardSkeleton from "../components/AttractionCardSkeleton";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { useFetch, type FetchStatus } from "@/hooks/useFetch";
+import AttractionListHeader from "./AttractionListHeader";
+import AttractionFilters from "./AttractionFilters";
+import AttractionListContent from "./AttractionListContent";
 
 const CATEGORY_OPTIONS: CategoryOption[] = [
   { value: "THRILL", label: "Cảm giác mạnh" },
@@ -176,128 +177,32 @@ export default function AttractionListPage() {
   }
   return (
     <section className={styles.page}>
-      <h1>Khám phá trải nghiệm</h1>
-      <p>Tìm điểm vui chơi phù hợp cho chuyến đi của bạn.</p>
-      <label htmlFor="attraction-search">Tìm kiếm trải nghiệm</label>
-      <input
-        className={styles.input}
-        id="attraction-search"
-        type="search"
-        value={searchText}
-        onChange={(e) => handleSearchChange(e.currentTarget.value)}
-        placeholder="Nhập tên trải nghiệm"
-        ref={searchInputRef}
+      <AttractionListHeader />
+      <AttractionFilters
+        searchText={searchText}
+        selectedPark={selectedPark}
+        selectedSort={selectedSort}
+        selectedCategories={selectedCategories}
+        parks={parks}
+        categoryOptions={CATEGORY_OPTIONS}
+        searchInputRef={searchInputRef}
+        onSearchChange={handleSearchChange}
+        onParkChange={handleParkChange}
+        onSortChange={handleSortChange}
+        onCategoryChange={handleCategoryChange}
       />
-      <label htmlFor="park-filter">Khu vui chơi</label>
-      <select
-        id="park-filter"
-        value={selectedPark}
-        onChange={(e) => handleParkChange(e.currentTarget.value)}
-      >
-        <option value="">Tất cả khu vui chơi</option>
-        {parks.map((park) => (
-          <option key={park.id} value={park.id}>
-            {park.name}
-          </option>
-        ))}
-      </select>
-      <label htmlFor="sort-filter">Sắp xếp</label>
-      <select
-        id="sort-filter"
-        value={selectedSort}
-        onChange={(e) => handleSortChange(e.currentTarget.value)}
-      >
-        <option value="">Mặc định</option>
-        <option value="price_asc">Giá thấp đến cao</option>
-        <option value="price_desc">Giá cao đến thấp</option>
-        <option value="rating_desc">Rating cao nhất</option>
-      </select>
-      <fieldset className={styles.filterGroup}>
-        <legend>Danh mục</legend>
-        {CATEGORY_OPTIONS.map((option) => (
-          <label key={option.value}>
-            <input
-              type="checkbox"
-              checked={selectedCategories.includes(option.value)}
-              onChange={(e) =>
-                handleCategoryChange(option.value, e.currentTarget.checked)
-              }
-            />
-            {option.label}
-          </label>
-        ))}
-      </fieldset>
-
-      {pageStatus === "loading" && (
-        <div
-          className={styles.grid}
-          role="status"
-          aria-label="Đang tải danh sách trải nghiệm"
-        >
-          {Array.from({ length: PAGE_SIZE }, (_, index) => (
-            <AttractionCardSkeleton key={index} />
-          ))}
-        </div>
-      )}
-
-      {pageStatus === "error" && (
-        <div className={styles.errorState}>
-          <p role="alert">{pageError}</p>
-
-          <button type="button" onClick={handleRetry}>
-            Thử lại
-          </button>
-        </div>
-      )}
-
-      {pageStatus === "success" && attractions.length === 0 && (
-        <div className={styles.emptyState}>
-          <h2>Không tìm thấy trải nghiệm</h2>
-          <p>Hãy thử thay đổi từ khoá hoặc bộ lọc</p>
-          <button type="button" onClick={handleClearFilters}>
-            Xoá bộ lọc
-          </button>
-        </div>
-      )}
-
-      {pageStatus === "success" && attractions.length > 0 && (
-        <>
-          <div className={styles.grid}>
-            {attractions.map((item) => (
-              <AttractionCard
-                key={item.id}
-                attraction={item}
-                parkName={getParkName(item.parkId)}
-              />
-            ))}
-          </div>
-          {totalPages > 1 && (
-            <nav aria-label="Phân trang" className={styles.pagination}>
-              <button
-                type="button"
-                disabled={currentPage === 1}
-                onClick={() => {
-                  handlePageChange(currentPage - 1);
-                }}
-              >
-                Trang trước
-              </button>
-              <span>
-                Trang {currentPage} / {totalPages}
-              </span>
-              <button
-                type="button"
-                disabled={currentPage >= totalPages}
-                onClick={() => {
-                  handlePageChange(currentPage + 1);
-                }}
-              >
-                Trang sau
-              </button>
-            </nav>
-          )}
-        </>
-      )}
+      <AttractionListContent
+        pageStatus={pageStatus}
+        attractions={attractions}
+        pageError={pageError}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={PAGE_SIZE}
+        getParkName={getParkName}
+        onRetry={handleRetry}
+        onClearFilters={handleClearFilters}
+        onPageChange={handlePageChange}
+      />
     </section>
   );
 }
