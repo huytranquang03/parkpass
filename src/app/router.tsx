@@ -3,15 +3,18 @@ import AttractionListPage from "@/features/attractions/pages/AttractionListPage"
 import AttractionDetailPage from "@/features/attractions/pages/AttractionDetailPage";
 import AppLayout from "./AppLayout";
 import NotFoundPage from "./NotFoundPage";
-import CheckoutPage from "@/features/checkout/pages/CheckoutPage";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import RequireAuth from "@/features/auth/RequireAuth";
-import OrderPage from "@/features/orders/pages/OrdersPage";
-import OrderDetailPage from "@/features/orders/pages/OrderDetailPage";
+import RouteErrorPage from "./RouteErrorPage";
+
+import { CheckoutPage, OrderDetailPage, OrdersPage } from "./LazyPages";
+import { Suspense } from "react";
+import RouteLoadingFallback from "./RouteLoadingFallback";
 
 export const router = createBrowserRouter([
   {
     element: <AppLayout />,
+    errorElement: <RouteErrorPage />,
     children: [
       {
         path: "/",
@@ -26,10 +29,14 @@ export const router = createBrowserRouter([
         element: <NotFoundPage />,
       },
       {
-        element: <RequireAuth />,
+        element: (
+          <Suspense fallback={<RouteLoadingFallback />}>
+            <RequireAuth />
+          </Suspense>
+        ),
         children: [
           { path: "/checkout", element: <CheckoutPage /> },
-          { path: "/orders", element: <OrderPage /> },
+          { path: "/orders", element: <OrdersPage /> },
           {
             path: "/orders/:id",
             element: <OrderDetailPage />,

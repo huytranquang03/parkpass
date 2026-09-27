@@ -7,6 +7,8 @@ import QuantityStepper from "@/components/ui/QuantityStepper";
 import type { CartItem } from "@/features/cart/types";
 import { useCart } from "@/features/cart/cartContext";
 import { useFetch } from "@/hooks/useFetch";
+import ErrorBoundary from "@/components/errors/ErrorBoundary";
+import ReviewWidget from "@/features/reviews/components/ReviewsWidget";
 
 const TICKET_OPTIONS: TicketOption[] = [
   { type: "ADULT", label: "Người lớn" },
@@ -247,6 +249,10 @@ export default function AttractionDetailPage() {
               ))}
             </div>
           </section>
+
+          <ErrorBoundary fallbackMessage="Không thể tải phần đánh giá.">
+            <ReviewWidget attractionId={attraction.id} />
+          </ErrorBoundary>
 
           {selectedImage &&
             createPortal(
