@@ -169,6 +169,7 @@ export default function CheckoutPage() {
         }
         setErrors((current) => ({ ...current, promoCode: message }));
         promoCodeRef.current?.focus();
+        return;
       } finally {
         setIsCheckingPromo(false);
       }
@@ -246,6 +247,7 @@ export default function CheckoutPage() {
       } else {
         setSubmitError("Không thể tạo đơn hàng");
       }
+      return;
     } finally {
       setIsSubmitting(false);
     }
