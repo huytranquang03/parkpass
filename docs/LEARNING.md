@@ -3,6 +3,42 @@
 Tài liệu này được cập nhật dần trong quá trình thực hiện assignment. Những câu
 chưa được trả lời sẽ được bổ sung ở các milestone tiếp theo.
 
+## Q6. Khi nào vẫn cần class component? Lifecycle class và hooks
+
+Trong React hiện đại, em ưu tiên function component vì hooks giúp state và side
+effect dễ nhóm theo từng chức năng hơn. Tuy nhiên, em vẫn cần hiểu class
+component để đọc code cũ và làm việc với những API chưa có cách thay thế trực
+tiếp bằng function component. Trong ParkPass, `ErrorBoundary` là ví dụ rõ nhất:
+đề bài yêu cầu tự viết bằng class với `getDerivedStateFromError` và
+`componentDidCatch`.
+
+Em đã viết `ParkClosingCountdown` theo cả hai cách để so sánh. Bản class phải
+chia vòng đời của cùng một timer qua ba method: tạo timer khi mount, khởi động
+lại khi prop giờ đóng cửa thay đổi và dọn timer khi unmount. Bản hooks gom phần
+setup và cleanup của timer trong cùng một `useEffect`, còn `closingHour` nằm
+trong dependency array để effect chạy lại khi giá trị này thay đổi.
+
+| Class component                                  | Function component với hooks                                         |
+| ------------------------------------------------ | -------------------------------------------------------------------- |
+| `constructor` khởi tạo state                     | Lazy initializer của `useState`                                      |
+| `componentDidMount` tạo timer lần đầu            | Nội dung `useEffect` chạy sau lần render đầu                         |
+| `componentDidUpdate` so sánh prop cũ và prop mới | Dependency `[closingHour]` làm effect chạy lại khi prop đổi          |
+| `componentWillUnmount` gọi `clearInterval`       | Cleanup function được return từ `useEffect`                          |
+| `this.setState(...)`                             | Hàm setter từ `useState`                                             |
+| Instance field `timerId`                         | Biến cục bộ trong effect; dùng `useRef` nếu cần giữ qua nhiều render |
+
+Việc mapping này không hoàn toàn là quan hệ một-một. Một `useEffect` có thể bao
+gồm hành vi tương đương cả mount, update và unmount. Trước khi effect chạy lại,
+React chạy cleanup của lần trước; khi component bị gỡ khỏi UI, React cũng chạy
+cleanup lần cuối. Vì vậy timer cũ không tiếp tục hoạt động và không bị tạo chồng
+khi `closingHour` thay đổi.
+
+Qua bài countdown, em thấy bản class mô tả code theo các giai đoạn vòng đời,
+còn bản hooks mô tả một side effect hoàn chỉnh gồm setup và cleanup. Với code
+mới em chọn bản hooks vì logic timer nằm gần nhau hơn, nhưng vẫn giữ bản class
+trong project để minh họa lifecycle và vì ErrorBoundary vẫn cần class trong
+phạm vi assignment này.
+
 ## Q18. So sánh các cách bảo vệ route
 
 ### HOC `withAuth`

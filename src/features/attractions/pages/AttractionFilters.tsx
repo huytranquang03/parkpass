@@ -1,6 +1,7 @@
-import type { RefObject } from "react";
+import { memo, useEffect, useRef, useState, type RefObject } from "react";
 import type { Category, CategoryOption, Park } from "../types";
 import styles from "./AttractionListPage.module.css";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface AttractionFiltersProps {
   searchText: string;
@@ -10,13 +11,14 @@ interface AttractionFiltersProps {
   parks: Park[];
   categoryOptions: CategoryOption[];
   searchInputRef: RefObject<HTMLInputElement | null>;
-  onSearchChange: (value: string) => void;
   onParkChange: (value: string) => void;
   onSortChange: (value: string) => void;
   onCategoryChange: (category: Category, checked: boolean) => void;
+  onSearchCommit: (value: string) => void;
+  isSearchPending: boolean;
 }
 
-export default function AttractionFilters({
+function AttractionFilters({
   searchText,
   selectedPark,
   selectedSort,
@@ -24,11 +26,34 @@ export default function AttractionFilters({
   parks,
   categoryOptions,
   searchInputRef,
-  onSearchChange,
   onParkChange,
   onSortChange,
   onCategoryChange,
+  onSearchCommit,
+  isSearchPending,
 }: AttractionFiltersProps) {
+  const [searchDraft, setSearchDraft] = useState(searchText);
+  const debouncedSearchDraft = useDebounce(searchDraft, 400);
+
+  const lastSyncedSearchRef = useRef(searchText);
+
+  useEffect(() => {
+    if (searchText === lastSyncedSearchRef.current) {
+      return;
+    }
+
+    lastSyncedSearchRef.current = searchText;
+    setSearchDraft(searchText);
+  }, [searchText]);
+
+  useEffect(() => {
+    if (debouncedSearchDraft === lastSyncedSearchRef.current) {
+      return;
+    }
+
+    lastSyncedSearchRef.current = debouncedSearchDraft;
+    onSearchCommit(debouncedSearchDraft);
+  }, [debouncedSearchDraft, onSearchCommit]);
   return (
     <>
       <label htmlFor="attraction-search">Tìm kiếm trải nghiệm</label>
@@ -36,10 +61,11 @@ export default function AttractionFilters({
         className={styles.input}
         id="attraction-search"
         type="search"
-        value={searchText}
-        onChange={(e) => onSearchChange(e.currentTarget.value)}
+        value={searchDraft}
+        onChange={(e) => setSearchDraft(e.currentTarget.value)}
         placeholder="Nhập tên trải nghiệm"
         ref={searchInputRef}
+        aria-busy={isSearchPending}
       />
       <label htmlFor="park-filter">Khu vui chơi</label>
       <select
@@ -83,3 +109,5 @@ export default function AttractionFilters({
     </>
   );
 }
+
+export default memo(AttractionFilters);

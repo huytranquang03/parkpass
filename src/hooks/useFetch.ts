@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type FetchStatus = "loading" | "error" | "success";
 
@@ -49,8 +49,8 @@ export function useFetch<T>(url: string, requestInit?: RequestInit) {
     };
   }, [url, requestVersion, requestInit]);
 
-  function refetch() {
+  const refetch = useCallback(() => {
     setRequestVersion((currentVersion) => currentVersion + 1);
-  }
+  }, []);
   return { status, data, error, responseStatus, refetch };
 }

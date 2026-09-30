@@ -8,6 +8,7 @@ import styles from "./OrderDetailPage.module.css";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import type { ApiError } from "@/lib/apiError";
+import Toast from "@/components/ui/Toast";
 
 interface OrderDetailLocationState {
   successMessage?: string;
@@ -187,7 +188,7 @@ export default function OrderDetailPage() {
 
         <Button
           type="button"
-          onClick={() => void handleCancelOrder()}
+          onClick={() => handleCancelOrder()}
           disabled={isCancelling}
         >
           {isCancelling ? "Đang huỷ..." : "Xác nhận huỷ"}
@@ -203,11 +204,7 @@ export default function OrderDetailPage() {
         </Button>
       </Modal>
 
-      {toastMessage && (
-        <p className={styles.toast} role="status">
-          {toastMessage}
-        </p>
-      )}
+      {toastMessage && <Toast message={toastMessage} />}
     </>
   );
 }

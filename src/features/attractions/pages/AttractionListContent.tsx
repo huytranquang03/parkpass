@@ -3,6 +3,9 @@ import AttractionCard from "../components/AttractionCard";
 import AttractionCardSkeleton from "../components/AttractionCardSkeleton";
 import styles from "./AttractionListPage.module.css";
 import type { Attraction } from "../types";
+import { memo } from "react";
+
+const SKELETON_COUNT = 12;
 
 interface AttractionListContentProps {
   pageStatus: FetchStatus;
@@ -10,20 +13,18 @@ interface AttractionListContentProps {
   pageError: string;
   currentPage: number;
   totalPages: number;
-  pageSize: number;
   getParkName: (parkId: string) => string;
   onRetry: () => void;
   onClearFilters: () => void;
   onPageChange: (page: number) => void;
 }
 
-export default function AttractionListContent({
+function AttractionListContent({
   pageStatus,
   attractions,
   pageError,
   currentPage,
   totalPages,
-  pageSize,
   getParkName,
   onRetry,
   onClearFilters,
@@ -37,7 +38,7 @@ export default function AttractionListContent({
           role="status"
           aria-label="Đang tải danh sách trải nghiệm"
         >
-          {Array.from({ length: pageSize }, (_, index) => (
+          {Array.from({ length: SKELETON_COUNT }, (_, index) => (
             <AttractionCardSkeleton key={index} />
           ))}
         </div>
@@ -104,3 +105,5 @@ export default function AttractionListContent({
     </>
   );
 }
+
+export default memo(AttractionListContent);

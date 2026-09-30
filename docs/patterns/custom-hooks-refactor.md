@@ -212,3 +212,22 @@ Mỗi URL có loading, data, error và refetch riêng. Component kết hợp hai
 - Cleanup vẫn tồn tại; nó chỉ được chuyển từ page vào hook.
 - URL phải ổn định theo đúng dependency mong muốn. Với search, URL attractions dùng giá trị đã debounce.
 - Không phải effect nào cũng cần biến thành custom hook. Effect lightbox và toast vẫn thuộc hành vi riêng của trang chi tiết.
+
+## Phụ lục: `AttractionCard` trước khi dùng compound component
+
+```tsx
+<article className={styles.card}>
+  <img
+    className={styles.image}
+    src={attraction.images[0]}
+    alt={attraction.name}
+  />
+  <Badge>{attraction.category}</Badge>
+  <h2>
+    <Link to={`/attractions/${attraction.id}`}>{attraction.name}</Link>
+  </h2>
+  <p>{parkName}</p>
+  <p className={styles.price}>Từ {formattedPrice}</p>
+  <p>Đánh giá: {attraction.rating}/5</p>
+</article>
+```

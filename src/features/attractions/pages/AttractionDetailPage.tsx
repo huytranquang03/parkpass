@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router";
 import type { Attraction, TicketOption, TicketType } from "../types";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import styles from "./AttractionDetailPage.module.css";
 import { createPortal } from "react-dom";
 import QuantityStepper from "@/components/ui/QuantityStepper";
@@ -9,6 +9,9 @@ import { useCart } from "@/features/cart/cartContext";
 import { useFetch } from "@/hooks/useFetch";
 import ErrorBoundary from "@/components/errors/ErrorBoundary";
 import ReviewWidget from "@/features/reviews/components/ReviewsWidget";
+import Toast from "@/components/ui/Toast";
+import ParkClosingCountdownClass from "../components/ParkClosingCountdownClass";
+import ParkClosingCountdownHooks from "../components/ParkClosingCountdownHooks";
 
 const TICKET_OPTIONS: TicketOption[] = [
   { type: "ADULT", label: "Người lớn" },
@@ -30,6 +33,7 @@ const INITIAL_QUANTITIES: Record<TicketType, number> = {
 export default function AttractionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const attractionUrl = `${import.meta.env.VITE_API_BASE_URL}/attractions/${id ?? "__missing__"}`;
+  const lightboxTitleId = useId();
 
   const {
     status,
@@ -99,19 +103,27 @@ export default function AttractionDetailPage() {
     if (!selectedImage) {
       return;
     }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     closeButtonRef.current?.focus();
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key !== "Escape") {
-        return;
+      if (event.key === "Escape") {
+        setSelectedImage(null);
       }
-      event.preventDefault();
-      setSelectedImage(null);
-      lastImageTriggerRef.current?.focus();
+
+      if (event.key === "Tab") {
+        event.preventDefault();
+        closeButtonRef.current?.focus();
+      }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => {
+      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
+      lastImageTriggerRef.current?.focus();
     };
   }, [selectedImage]);
 
@@ -135,7 +147,6 @@ export default function AttractionDetailPage() {
 
   function handleCloseLightbox() {
     setSelectedImage(null);
-    lastImageTriggerRef.current?.focus();
   }
 
   function handleQuantityChange(ticketType: TicketType, quantity: number) {
@@ -192,6 +203,8 @@ export default function AttractionDetailPage() {
         <section className={styles.page}>
           <Link to="/">← Quay lại danh sách</Link>
           <h1>{attraction.name}</h1>
+          <ParkClosingCountdownClass closingHour={21} />
+          <ParkClosingCountdownHooks closingHour={21} />
           <p>{attraction.description}</p>
 
           <section>
@@ -260,7 +273,7 @@ export default function AttractionDetailPage() {
                 className={styles.lightboxOverlay}
                 role="dialog"
                 aria-modal="true"
-                aria-label={`Ảnh phóng to của ${attraction.name}`}
+                aria-labelledby={lightboxTitleId}
               >
                 <div className={styles.lightboxContent}>
                   <button
@@ -272,7 +285,9 @@ export default function AttractionDetailPage() {
                   >
                     ×
                   </button>
-
+                  <h2 id={lightboxTitleId} className={styles.visuallyHidden}>
+                    Ảnh phóng to của {attraction.name}
+                  </h2>
                   <img
                     className={styles.lightboxImage}
                     src={selectedImage}
@@ -283,11 +298,7 @@ export default function AttractionDetailPage() {
               document.body,
             )}
 
-          {toastMessage && (
-            <div className={styles.toast} role="status">
-              {toastMessage}
-            </div>
-          )}
+          {toastMessage && <Toast message={toastMessage} />}
         </section>
       )}
     </>

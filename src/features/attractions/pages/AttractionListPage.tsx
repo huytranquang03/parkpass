@@ -1,13 +1,13 @@
 import type {
+  Attraction,
   AttractionListResponse,
   Category,
   CategoryOption,
   Park,
 } from "../types";
 import styles from "./AttractionListPage.module.css";
-import { useRef } from "react";
+import { useCallback, useMemo, useRef, useTransition } from "react";
 import { useSearchParams } from "react-router";
-import { useDebounce } from "@/hooks/useDebounce";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { useFetch, type FetchStatus } from "@/hooks/useFetch";
 import AttractionListHeader from "./AttractionListHeader";
@@ -21,31 +21,42 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
   { value: "SHOW", label: "Biểu diễn" },
   { value: "WATER", label: "Dưới nước" },
 ];
-const PAGE_SIZE = 12;
+
+const DEFAULT_PAGE_SIZE = 12;
+const LARGE_DATASET_SIZE = 500;
+const EMPTY_ATTRACTIONS: Attraction[] = [];
+const EMPTY_PARKS: Park[] = [];
 
 export default function AttractionListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const searchText = searchParams.get("q") ?? "";
-  const debouncedSearchText = useDebounce(searchText, 400);
 
   const selectedPark = searchParams.get("park") ?? "";
   const selectedSort = searchParams.get("sort") ?? "";
-  const selectedCategories = searchParams.getAll("category");
+  const selectedCategories = useMemo(
+    () => searchParams.getAll("category"),
+    [searchParams],
+  );
+  const [isSearchPending, startSearchTransition] = useTransition();
 
   const pageFromUrl = Number(searchParams.get("page") ?? "1");
   const currentPage =
     Number.isInteger(pageFromUrl) && pageFromUrl > 0 ? pageFromUrl : 1;
 
-  // let currentPage = 1;
-  // if (Number.isInteger(pageFromUrl) && pageFromUrl > 0) {
-  // 	return currentPage = pageFromUrl;
-  // }
+  const pageSize =
+    localStorage.getItem("pp:large") === "1"
+      ? LARGE_DATASET_SIZE
+      : DEFAULT_PAGE_SIZE;
 
   const attractionParams = new URLSearchParams(searchParams);
-  attractionParams.set("q", debouncedSearchText);
+  if (searchText) {
+    attractionParams.set("q", searchText);
+  } else {
+    attractionParams.delete("q");
+  }
   attractionParams.set("page", String(currentPage));
-  attractionParams.set("limit", String(PAGE_SIZE));
+  attractionParams.set("limit", String(pageSize));
 
   const attractionsUrl = `${import.meta.env.VITE_API_BASE_URL}/attractions?${attractionParams.toString()}`;
   const {
@@ -55,9 +66,9 @@ export default function AttractionListPage() {
     refetch: refetchAttractions,
   } = useFetch<AttractionListResponse>(attractionsUrl);
 
-  const attractions = attractionsResponse?.data ?? [];
+  const attractions = attractionsResponse?.data ?? EMPTY_ATTRACTIONS;
   const total = attractionsResponse?.total ?? 0;
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const totalPages = Math.ceil(total / pageSize);
 
   const parksUrl = `${import.meta.env.VITE_API_BASE_URL}/parks`;
   const {
@@ -67,7 +78,12 @@ export default function AttractionListPage() {
     refetch: refetchParks,
   } = useFetch<Park[]>(parksUrl);
 
-  const parks = parksData ?? [];
+  const parks = parksData ?? EMPTY_PARKS;
+
+  const parkNamesById = useMemo(
+    () => new Map(parks.map((park) => [park.id, park.name])),
+    [parks],
+  );
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,11 +91,7 @@ export default function AttractionListPage() {
 
   if (attractionsStatus === "error" || parksStatus === "error") {
     pageStatus = "error";
-  } else if (
-    searchText !== debouncedSearchText ||
-    attractionsStatus === "loading" ||
-    parksStatus === "loading"
-  ) {
+  } else if (attractionsStatus === "loading" || parksStatus === "loading") {
     pageStatus = "loading";
   } else {
     pageStatus = "success";
@@ -87,6 +99,24 @@ export default function AttractionListPage() {
 
   const pageError =
     attractionsError ?? parksError ?? "Không tải được danh sách";
+
+  const handleSearchCommit = useCallback(
+    (value: string) => {
+      startSearchTransition(() => {
+        setSearchParams((currentParams) => {
+          const nextParams = new URLSearchParams(currentParams);
+          if (value) {
+            nextParams.set("q", value);
+          } else {
+            nextParams.delete("q");
+          }
+          nextParams.set("page", "1");
+          return nextParams;
+        });
+      });
+    },
+    [setSearchParams, startSearchTransition],
+  );
 
   useKeyboardShortcut("/", (event) => {
     const target = event.target;
@@ -104,92 +134,96 @@ export default function AttractionListPage() {
     searchInputRef.current?.focus();
   });
 
-  function getParkName(parkId: string) {
-    const park = parks.find((item) => item.id === parkId);
-    if (!park) {
-      return parkId;
-    }
-    return park.name;
-  }
+  const getParkName = useCallback(
+    (parkId: string) => parkNamesById.get(parkId) ?? parkId,
+    [parkNamesById],
+  );
 
-  function handleSearchChange(value: string) {
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set("q", value);
-    nextParams.set("page", "1");
-    setSearchParams(nextParams, { replace: true });
-  }
+  const handleParkChange = useCallback(
+    (value: string) => {
+      const nextParams = new URLSearchParams(searchParams);
+      if (value) {
+        nextParams.set("park", value);
+      } else {
+        nextParams.delete("park");
+      }
+      nextParams.set("page", "1");
+      setSearchParams(nextParams);
+    },
+    [searchParams, setSearchParams],
+  );
 
-  function handleParkChange(value: string) {
-    const nextParams = new URLSearchParams(searchParams);
-    if (value) {
-      nextParams.set("park", value);
-    } else {
-      nextParams.delete("park");
-    }
-    nextParams.set("page", "1");
-    setSearchParams(nextParams);
-  }
+  const handleSortChange = useCallback(
+    (value: string) => {
+      const nextParams = new URLSearchParams(searchParams);
+      if (value) {
+        nextParams.set("sort", value);
+      } else {
+        nextParams.delete("sort");
+      }
+      nextParams.set("page", "1");
+      setSearchParams(nextParams);
+    },
+    [searchParams, setSearchParams],
+  );
 
-  function handleSortChange(value: string) {
-    const nextParams = new URLSearchParams(searchParams);
-    if (value) {
-      nextParams.set("sort", value);
-    } else {
-      nextParams.delete("sort");
-    }
-    nextParams.set("page", "1");
-    setSearchParams(nextParams);
-  }
+  const handleCategoryChange = useCallback(
+    (category: Category, checked: boolean) => {
+      const nextParams = new URLSearchParams(searchParams);
+      if (checked) {
+        nextParams.append("category", category);
+      } else {
+        nextParams.delete("category", category);
+      }
+      nextParams.set("page", "1");
+      setSearchParams(nextParams);
+    },
+    [searchParams, setSearchParams],
+  );
 
-  function handleCategoryChange(category: Category, checked: boolean) {
-    const nextParams = new URLSearchParams(searchParams);
-    if (checked) {
-      nextParams.append("category", category);
-    } else {
-      nextParams.delete("category", category);
-    }
-    nextParams.set("page", "1");
-    setSearchParams(nextParams);
-  }
+  const handlePageChange = useCallback(
+    (nextPage: number) => {
+      if (nextPage < 1 || nextPage > totalPages) {
+        return;
+      }
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.set("page", String(nextPage));
+      setSearchParams(nextParams);
+    },
+    [searchParams, setSearchParams, totalPages],
+  );
 
-  function handlePageChange(nextPage: number) {
-    if (nextPage < 1 || nextPage > totalPages) {
-      return;
-    }
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set("page", String(nextPage));
-    setSearchParams(nextParams);
-  }
-
-  function handleClearFilters() {
+  const handleClearFilters = useCallback(() => {
     const nextParams = new URLSearchParams();
     nextParams.set("page", "1");
     setSearchParams(nextParams);
-  }
+  }, [setSearchParams]);
 
-  function handleRetry() {
+  const handleRetry = useCallback(() => {
     if (attractionsStatus === "error") {
       refetchAttractions();
     }
     if (parksStatus === "error") {
       refetchParks();
     }
-  }
+  }, [attractionsStatus, parksStatus, refetchAttractions, refetchParks]);
+
   return (
     <section className={styles.page}>
       <AttractionListHeader />
       <AttractionFilters
         searchText={searchText}
+        onSearchCommit={handleSearchCommit}
         selectedPark={selectedPark}
         selectedSort={selectedSort}
         selectedCategories={selectedCategories}
         parks={parks}
         categoryOptions={CATEGORY_OPTIONS}
         searchInputRef={searchInputRef}
-        onSearchChange={handleSearchChange}
         onParkChange={handleParkChange}
         onSortChange={handleSortChange}
         onCategoryChange={handleCategoryChange}
+        isSearchPending={isSearchPending}
       />
       <AttractionListContent
         pageStatus={pageStatus}
@@ -197,7 +231,6 @@ export default function AttractionListPage() {
         pageError={pageError}
         currentPage={currentPage}
         totalPages={totalPages}
-        pageSize={PAGE_SIZE}
         getParkName={getParkName}
         onRetry={handleRetry}
         onClearFilters={handleClearFilters}
