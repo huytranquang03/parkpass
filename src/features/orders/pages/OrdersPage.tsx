@@ -1,9 +1,9 @@
 import { useAuth } from "@/features/auth/authContext";
 import type { Order } from "../types";
-import { useMemo } from "react";
-import { useFetch } from "@/hooks/useFetch";
 import { Link } from "react-router";
 import Badge from "@/components/ui/Badge";
+import { useQuery } from "@tanstack/react-query";
+import { ordersOptions } from "../queries";
 
 const currencyFormatter = new Intl.NumberFormat("vi-VN", {
   style: "currency",
@@ -18,31 +18,40 @@ const STATUS_LABELS: Record<Order["status"], string> = {
 
 export default function OrdersPage() {
   const { token } = useAuth();
-  const requestInit = useMemo<RequestInit | undefined>(() => {
-    if (!token) return undefined;
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-  }, [token]);
 
-  const { status, data, error, refetch } = useFetch<Order[]>(
-    `${import.meta.env.VITE_API_BASE_URL}/orders`,
-    requestInit,
-  );
+  // const requestInit = useMemo<RequestInit | undefined>(() => {
+  //   if (!token) return undefined;
+  //   return {
+  //     headers: {
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //   };
+  // }, [token]);
 
-  const orders = data ?? [];
+  // const { status, data, error, refetch } = useFetch<Order[]>(
+  //   `${import.meta.env.VITE_API_BASE_URL}/orders`,
+  //   requestInit,
+  // );
 
-  if (status === "loading") {
+  // const orders = data ?? [];
+
+  const {
+    data: orders = [],
+    isPending,
+    isError,
+    error,
+    refetch,
+  } = useQuery(ordersOptions(token));
+
+  if (isPending) {
     return <p role="status">Đang tải đơn hàng...</p>;
   }
 
-  if (status === "error") {
+  if (isError) {
     return (
       <section>
-        <p role="alert">{error ?? "Không thể tải đơn hàng"}</p>
-        <button type="button" onClick={refetch}>
+        <p role="alert">{error.message || "Không thể tải đơn hàng"}</p>
+        <button type="button" onClick={() => refetch()}>
           Thử lại
         </button>
       </section>

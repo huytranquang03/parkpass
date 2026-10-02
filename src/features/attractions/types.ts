@@ -33,3 +33,12 @@ export interface AttractionListResponse {
   page: number;
   limit: number;
 }
+
+export interface AttractionListFilters {
+  q: string;
+  park: string;
+  sort: string;
+  categories: string[];
+  page: number;
+  limit: number;
+}

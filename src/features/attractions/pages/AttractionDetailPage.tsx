@@ -1,17 +1,19 @@
 import { Link, useParams } from "react-router";
-import type { Attraction, TicketOption, TicketType } from "../types";
-import { useEffect, useId, useRef, useState } from "react";
+import type { TicketOption, TicketType } from "../types";
+import { Suspense, useEffect, useId, useRef, useState } from "react";
 import styles from "./AttractionDetailPage.module.css";
 import { createPortal } from "react-dom";
 import QuantityStepper from "@/components/ui/QuantityStepper";
 import type { CartItem } from "@/features/cart/types";
 import { useCart } from "@/features/cart/cartContext";
-import { useFetch } from "@/hooks/useFetch";
 import ErrorBoundary from "@/components/errors/ErrorBoundary";
 import ReviewWidget from "@/features/reviews/components/ReviewsWidget";
 import Toast from "@/components/ui/Toast";
 import ParkClosingCountdownClass from "../components/ParkClosingCountdownClass";
 import ParkClosingCountdownHooks from "../components/ParkClosingCountdownHooks";
+import { QueryErrorResetBoundary, useQuery } from "@tanstack/react-query";
+import { attractionDetailOptions } from "../queries";
+import { ApiRequestError } from "@/lib/apiError";
 
 const TICKET_OPTIONS: TicketOption[] = [
   { type: "ADULT", label: "Người lớn" },
@@ -32,18 +34,32 @@ const INITIAL_QUANTITIES: Record<TicketType, number> = {
 
 export default function AttractionDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const attractionUrl = `${import.meta.env.VITE_API_BASE_URL}/attractions/${id ?? "__missing__"}`;
   const lightboxTitleId = useId();
+  // const attractionUrl = `${import.meta.env.VITE_API_BASE_URL}/attractions/${id ?? "__missing__"}`;
+
+  // const {
+  //   status,
+  //   data: attraction,
+  //   error,
+  //   responseStatus,
+  //   refetch,
+  // } = useFetch<Attraction>(attractionUrl);
+
+  // const isNotFound = status === "error" && responseStatus === 404;
+
+  const attractionId = id ?? "__missing__";
 
   const {
-    status,
     data: attraction,
     error,
-    responseStatus,
+    isPending,
+    isError,
+    isSuccess,
     refetch,
-  } = useFetch<Attraction>(attractionUrl);
+  } = useQuery(attractionDetailOptions(attractionId));
 
-  const isNotFound = status === "error" && responseStatus === 404;
+  const isNotFound =
+    isError && error instanceof ApiRequestError && error.status === 404;
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const lastImageTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -58,6 +74,7 @@ export default function AttractionDetailPage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const { dispatch } = useCart();
+
   // const [status, setStatus] = useState<
   //   "loading" | "success" | "error" | "not-found"
   // >("loading");
@@ -179,13 +196,15 @@ export default function AttractionDetailPage() {
 
   return (
     <>
-      {status === "loading" && <p>Đang tải...</p>}
+      {isPending && <p>Đang tải...</p>}
 
-      {status === "error" && !isNotFound && (
+      {isError && !isNotFound && (
         <div>
-          <p role="alert">{error ?? "Không tải được thông tin trải nghiệm"}</p>
+          <p role="alert">
+            {error.message || "Không tải được thông tin trải nghiệm"}
+          </p>
 
-          <button type="button" onClick={refetch}>
+          <button type="button" onClick={() => refetch()}>
             Thử lại
           </button>
         </div>
@@ -199,7 +218,7 @@ export default function AttractionDetailPage() {
         </section>
       )}
 
-      {status === "success" && attraction && (
+      {isSuccess && attraction && (
         <section className={styles.page}>
           <Link to="/">← Quay lại danh sách</Link>
           <h1>{attraction.name}</h1>
@@ -263,9 +282,22 @@ export default function AttractionDetailPage() {
             </div>
           </section>
 
-          <ErrorBoundary fallbackMessage="Không thể tải phần đánh giá.">
+          {/* <ErrorBoundary fallbackMessage="Không thể tải phần đánh giá.">
             <ReviewWidget attractionId={attraction.id} />
-          </ErrorBoundary>
+          </ErrorBoundary> */}
+
+          <QueryErrorResetBoundary>
+            {({ reset }) => (
+              <ErrorBoundary
+                fallbackMessage="Không thể tải phần đánh giá."
+                onReset={reset}
+              >
+                <Suspense fallback={<p role="status">Đang tải đánh giá...</p>}>
+                  <ReviewWidget attractionId={attraction.id} />
+                </Suspense>
+              </ErrorBoundary>
+            )}
+          </QueryErrorResetBoundary>
 
           {selectedImage &&
             createPortal(

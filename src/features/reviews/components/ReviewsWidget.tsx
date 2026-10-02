@@ -1,25 +1,27 @@
-import { useFetch } from "@/hooks/useFetch";
-import type { Review } from "../types";
 import List from "@/components/ui/List";
+import { reviewsOptions } from "../queries";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 interface ReviewsWidgetProps {
   attractionId: string;
 }
 
 export default function ReviewsWidget({ attractionId }: ReviewsWidgetProps) {
-  const { status, data, error } = useFetch<Review[]>(
-    `${import.meta.env.VITE_API_BASE_URL}/attractions/${attractionId}/reviews`,
-  );
+  // const { status, data, error } = useFetch<Review[]>(
+  //   `${import.meta.env.VITE_API_BASE_URL}/attractions/${attractionId}/reviews`,
+  // );
 
-  if (status === "loading") {
-    return <p role="status">Đang tải đánh giá...</p>;
-  }
+  // if (status === "loading") {
+  //   return <p role="status">Đang tải đánh giá...</p>;
+  // }
 
-  if (status === "error") {
-    throw new Error(error ?? "Không thể tải đánh giá");
-  }
+  // if (status === "error") {
+  //   throw new Error(error ?? "Không thể tải đánh giá");
+  // }
 
-  const reviews = data ?? [];
+  // const reviews = data ?? [];
+
+  const { data: reviews } = useSuspenseQuery(reviewsOptions(attractionId));
 
   return (
     <section>

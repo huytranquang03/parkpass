@@ -5,8 +5,10 @@ import TicketSummaryCard from "../components/TicketSummaryCard";
 import { Link, useNavigate } from "react-router";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/features/auth/authContext";
-import type { CreateOrderRequest, Order } from "@/features/orders/types";
-import type { ApiError } from "@/lib/apiError";
+import type { CreateOrderRequest } from "@/features/orders/types";
+import { ApiRequestError } from "@/lib/apiError";
+import { useMutation } from "@tanstack/react-query";
+import { createOrder } from "@/features/orders/api";
 
 interface CheckoutFormValues {
   fullName: string;
@@ -43,12 +45,21 @@ export default function CheckoutPage() {
   const [isCheckingPromo, setIsCheckingPromo] = useState(false);
   const [promoMessage, setPromoMessage] = useState<string | null>(null);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const { items, totalPrice, dispatch } = useCart();
   const { token } = useAuth();
   const navigate = useNavigate();
+
+  const createOrderMutation = useMutation({
+    mutationFn: (requestBody: CreateOrderRequest) => {
+      if (!token) {
+        throw new Error("Phiên đăng nhập không hợp lệ");
+      }
+      return createOrder(requestBody, token);
+    },
+  });
 
   const fullNameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -63,7 +74,7 @@ export default function CheckoutPage() {
 
   if (isCheckingPromo) {
     submitButtonText = "Đang kiểm tra mã...";
-  } else if (isSubmitting) {
+  } else if (createOrderMutation.isPending) {
     submitButtonText = "Đang tạo đơn...";
   }
 
@@ -82,7 +93,7 @@ export default function CheckoutPage() {
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (isCheckingPromo || isSubmitting) return;
+    if (isCheckingPromo || createOrderMutation.isPending) return;
 
     const nextErrors: CheckoutFormErrors = {};
     if (!values.fullName.trim()) {
@@ -198,27 +209,81 @@ export default function CheckoutPage() {
       requestBody.promoCode = code;
     }
 
-    setIsSubmitting(true);
+    // setIsSubmitting(true);
+    // setSubmitError(null);
+
+    // try {
+    //   const response = await fetch(
+    //     `${import.meta.env.VITE_API_BASE_URL}/orders`,
+    //     {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-type": "application/json",
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //       body: JSON.stringify(requestBody),
+    //     },
+    //   );
+
+    //   const result = (await response.json()) as Order | ApiError;
+
+    //   if (response.status === 422) {
+    //     const apiError = result as ApiError;
+    //     const fieldErrors = (apiError.fieldErrors ?? {}) as CheckoutFormErrors;
+
+    //     setErrors(fieldErrors);
+    //     if (fieldErrors.fullName) fullNameRef.current?.focus();
+    //     else if (fieldErrors.email) emailRef.current?.focus();
+    //     else if (fieldErrors.phone) phoneRef.current?.focus();
+    //     else if (fieldErrors.visitDate) visitDateRef.current?.focus();
+    //     else if (fieldErrors.promoCode) promoCodeRef.current?.focus();
+    //     else if (fieldErrors.acceptTerms) acceptTermsRef.current?.focus();
+    //     return;
+    //   }
+
+    //   if (!response.ok) {
+    //     const apiError = result as ApiError;
+    //     throw new Error(apiError.message || "Không thể tạo đơn hàng");
+    //   }
+
+    //   const order = result as Order;
+    //   dispatch({ type: "CLEAR_CART" });
+    //   navigate(`/orders/${order.id}`, {
+    //     replace: true,
+    //     state: { successMessage: "Đặt vé thành công" },
+    //   });
+    // } catch (error) {
+    //   if (error instanceof Error) {
+    //     setSubmitError(error.message);
+    //   } else {
+    //     setSubmitError("Không thể tạo đơn hàng");
+    //   }
+    //   return;
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
+
+    // createOrderMutation.mutate(requestBody, {
+    //   onSuccess: (order) => {
+    //     dispatch({ type: "CLEAR_CART" });
+    //   onError: (error) => {
+    //     if (error instanceof ApiRequestError && error.status === 422) {
+    // });
+
     setSubmitError(null);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/orders`,
-        {
-          method: "POST",
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(requestBody),
-        },
-      );
+      const order = await createOrderMutation.mutateAsync(requestBody);
 
-      const result = (await response.json()) as Order | ApiError;
+      dispatch({ type: "CLEAR_CART" });
 
-      if (response.status === 422) {
-        const apiError = result as ApiError;
-        const fieldErrors = (apiError.fieldErrors ?? {}) as CheckoutFormErrors;
+      navigate(`/orders/${order.id}`, {
+        replace: true,
+        state: { successMessage: "Đặt vé thành công" },
+      });
+    } catch (error) {
+      if (error instanceof ApiRequestError && error.status === 422) {
+        const fieldErrors = (error.fieldErrors ?? {}) as CheckoutFormErrors;
 
         setErrors(fieldErrors);
         if (fieldErrors.fullName) fullNameRef.current?.focus();
@@ -230,26 +295,11 @@ export default function CheckoutPage() {
         return;
       }
 
-      if (!response.ok) {
-        const apiError = result as ApiError;
-        throw new Error(apiError.message || "Không thể tạo đơn hàng");
-      }
-
-      const order = result as Order;
-      dispatch({ type: "CLEAR_CART" });
-      navigate(`/orders/${order.id}`, {
-        replace: true,
-        state: { successMessage: "Đặt vé thành công" },
-      });
-    } catch (error) {
       if (error instanceof Error) {
         setSubmitError(error.message);
       } else {
         setSubmitError("Không thể tạo đơn hàng");
       }
-      return;
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -384,7 +434,10 @@ export default function CheckoutPage() {
           </p>
         )}
         {submitError && <p role="alert">{submitError}</p>}
-        <Button type="submit" disabled={isCheckingPromo || isSubmitting}>
+        <Button
+          type="submit"
+          disabled={isCheckingPromo || createOrderMutation.isPending}
+        >
           {submitButtonText}
         </Button>
       </form>

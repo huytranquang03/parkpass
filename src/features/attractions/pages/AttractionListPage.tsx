@@ -1,6 +1,6 @@
 import type {
   Attraction,
-  AttractionListResponse,
+  AttractionListFilters,
   Category,
   CategoryOption,
   Park,
@@ -9,10 +9,13 @@ import styles from "./AttractionListPage.module.css";
 import { useCallback, useMemo, useRef, useTransition } from "react";
 import { useSearchParams } from "react-router";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
-import { useFetch, type FetchStatus } from "@/hooks/useFetch";
 import AttractionListHeader from "./AttractionListHeader";
 import AttractionFilters from "./AttractionFilters";
-import AttractionListContent from "./AttractionListContent";
+import AttractionListContent, {
+  type AttractionListStatus,
+} from "./AttractionListContent";
+import { useQuery } from "@tanstack/react-query";
+import { attractionListOptions, parksOptions } from "../queries";
 
 const CATEGORY_OPTIONS: CategoryOption[] = [
   { value: "THRILL", label: "Cảm giác mạnh" },
@@ -49,56 +52,84 @@ export default function AttractionListPage() {
       ? LARGE_DATASET_SIZE
       : DEFAULT_PAGE_SIZE;
 
-  const attractionParams = new URLSearchParams(searchParams);
-  if (searchText) {
-    attractionParams.set("q", searchText);
-  } else {
-    attractionParams.delete("q");
-  }
-  attractionParams.set("page", String(currentPage));
-  attractionParams.set("limit", String(pageSize));
+  const attractionFilters: AttractionListFilters = {
+    q: searchText,
+    park: selectedPark,
+    sort: selectedSort,
+    categories: [...selectedCategories].sort(),
+    page: currentPage,
+    limit: pageSize,
+  };
 
-  const attractionsUrl = `${import.meta.env.VITE_API_BASE_URL}/attractions?${attractionParams.toString()}`;
   const {
-    status: attractionsStatus,
     data: attractionsResponse,
     error: attractionsError,
+    isPending: attractionsPending,
+    isError: attractionsIsError,
+    isPlaceholderData,
     refetch: refetchAttractions,
-  } = useFetch<AttractionListResponse>(attractionsUrl);
+  } = useQuery(attractionListOptions(attractionFilters));
+
+  // const attractionParams = new URLSearchParams(searchParams);
+  // if (searchText) {
+  //   attractionParams.set("q", searchText);
+  // } else {
+  //   attractionParams.delete("q");
+  // }
+  // attractionParams.set("page", String(currentPage));
+  // attractionParams.set("limit", String(pageSize));
+
+  // const attractionsUrl = `${import.meta.env.VITE_API_BASE_URL}/attractions?${attractionParams.toString()}`;
+  // const {
+  //   status: attractionsStatus,
+  //   data: attractionsResponse,
+  //   error: attractionsError,
+  //   refetch: refetchAttractions,
+  // } = useFetch<AttractionListResponse>(attractionsUrl);
 
   const attractions = attractionsResponse?.data ?? EMPTY_ATTRACTIONS;
   const total = attractionsResponse?.total ?? 0;
   const totalPages = Math.ceil(total / pageSize);
 
-  const parksUrl = `${import.meta.env.VITE_API_BASE_URL}/parks`;
   const {
-    status: parksStatus,
     data: parksData,
     error: parksError,
+    isPending: parksPending,
+    isError: parksIsError,
     refetch: refetchParks,
-  } = useFetch<Park[]>(parksUrl);
+  } = useQuery(parksOptions);
 
   const parks = parksData ?? EMPTY_PARKS;
 
-  const parkNamesById = useMemo(
-    () => new Map(parks.map((park) => [park.id, park.name])),
-    [parks],
-  );
-
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  let pageStatus: FetchStatus;
+  // let pageStatus: FetchStatus;
 
-  if (attractionsStatus === "error" || parksStatus === "error") {
+  // if (attractionsStatus === "error" || parksStatus === "error") {
+  //   pageStatus = "error";
+  // } else if (attractionsStatus === "loading" || parksStatus === "loading") {
+  //   pageStatus = "loading";
+  // } else {
+  //   pageStatus = "success";
+  // }
+
+  let pageStatus: AttractionListStatus;
+
+  if (attractionsIsError || parksIsError) {
     pageStatus = "error";
-  } else if (attractionsStatus === "loading" || parksStatus === "loading") {
+  } else if (attractionsPending || parksPending) {
     pageStatus = "loading";
   } else {
     pageStatus = "success";
   }
 
+  // const pageError =
+  //   attractionsError ?? parksError ?? "Không tải được danh sách";
+
   const pageError =
-    attractionsError ?? parksError ?? "Không tải được danh sách";
+    attractionsError?.message ||
+    parksError?.message ||
+    "Không tải được danh sách";
 
   const handleSearchCommit = useCallback(
     (value: string) => {
@@ -134,10 +165,15 @@ export default function AttractionListPage() {
     searchInputRef.current?.focus();
   });
 
-  const getParkName = useCallback(
-    (parkId: string) => parkNamesById.get(parkId) ?? parkId,
-    [parkNamesById],
-  );
+  function getParkName(parkId: string) {
+    const park = parks.find((item) => item.id === parkId);
+
+    if (!park) {
+      return parkId;
+    }
+
+    return park.name;
+  }
 
   const handleParkChange = useCallback(
     (value: string) => {
@@ -199,14 +235,24 @@ export default function AttractionListPage() {
     setSearchParams(nextParams);
   }, [setSearchParams]);
 
+  // const handleRetry = useCallback(() => {
+  //   if (attractionsStatus === "error") {
+  //     refetchAttractions();
+  //   }
+  //   if (parksStatus === "error") {
+  //     refetchParks();
+  //   }
+  // }, [attractionsStatus, parksStatus, refetchAttractions, refetchParks]);
+
   const handleRetry = useCallback(() => {
-    if (attractionsStatus === "error") {
+    if (attractionsIsError) {
       refetchAttractions();
     }
-    if (parksStatus === "error") {
+
+    if (parksIsError) {
       refetchParks();
     }
-  }, [attractionsStatus, parksStatus, refetchAttractions, refetchParks]);
+  }, [attractionsIsError, parksIsError, refetchAttractions, refetchParks]);
 
   return (
     <section className={styles.page}>
@@ -231,6 +277,7 @@ export default function AttractionListPage() {
         pageError={pageError}
         currentPage={currentPage}
         totalPages={totalPages}
+        isUpdating={isPlaceholderData}
         getParkName={getParkName}
         onRetry={handleRetry}
         onClearFilters={handleClearFilters}

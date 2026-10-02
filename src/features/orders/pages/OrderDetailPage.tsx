@@ -1,17 +1,23 @@
 import { useAuth } from "@/features/auth/authContext";
-import { useFetch } from "@/hooks/useFetch";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router";
 import type { Order, OrderItem } from "../types";
 import Badge from "@/components/ui/Badge";
 import styles from "./OrderDetailPage.module.css";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
-import type { ApiError } from "@/lib/apiError";
+import { ApiRequestError } from "@/lib/apiError";
 import Toast from "@/components/ui/Toast";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { orderDetailOptions, orderKeys } from "../queries";
+import { cancelOrder } from "../api";
 
 interface OrderDetailLocationState {
   successMessage?: string;
+}
+interface CancelOrderVariables {
+  orderId: string;
+  token: string;
 }
 
 const currencyFormatter = new Intl.NumberFormat("vi-VN", {
@@ -37,7 +43,6 @@ export default function OrderDetailPage() {
 
   const location = useLocation();
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
 
   const state = location.state as OrderDetailLocationState | null;
@@ -45,53 +50,133 @@ export default function OrderDetailPage() {
     state?.successMessage ?? null,
   );
 
-  const requestInit = useMemo<RequestInit | undefined>(() => {
-    if (!token) return undefined;
+  // const [isCancelling, setIsCancelling] = useState(false);
+  // const requestInit = useMemo<RequestInit | undefined>(() => {
+  //   if (!token) return undefined;
 
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-  }, [token]);
+  //   return {
+  //     headers: {
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //   };
+  // }, [token]);
 
+  // const {
+  //   status,
+  //   data: order,
+  //   error,
+  //   responseStatus,
+  //   refetch,
+  // } = useFetch<Order>(
+  //   `${import.meta.env.VITE_API_BASE_URL}/orders/${id ?? "__missing__"}`,
+  //   requestInit,
+  // );
+
+  const queryClient = useQueryClient();
   const {
-    status,
     data: order,
+    isPending,
+    isError,
     error,
-    responseStatus,
     refetch,
-  } = useFetch<Order>(
-    `${import.meta.env.VITE_API_BASE_URL}/orders/${id ?? "__missing__"}`,
-    requestInit,
-  );
+  } = useQuery(orderDetailOptions(id ?? "__missing__", token));
 
-  async function handleCancelOrder() {
-    if (!token || !order || isCancelling) return;
-    setIsCancelling(true);
-    setCancelError(null);
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/orders/${order.id}/cancel`,
-        { method: "PATCH", headers: { Authorization: `Bearer ${token}` } },
+  const cancelOrderMutation = useMutation({
+    mutationFn: ({ orderId, token }: CancelOrderVariables) =>
+      cancelOrder(orderId, token),
+
+    onMutate: async ({ orderId }) => {
+      const detailKey = orderKeys.detail(orderId);
+      const listKey = orderKeys.lists();
+
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: detailKey }),
+        queryClient.cancelQueries({ queryKey: listKey }),
+      ]);
+
+      const previousOrder = queryClient.getQueryData<Order>(detailKey);
+      const previousOrders = queryClient.getQueryData<Order[]>(listKey);
+
+      queryClient.setQueryData<Order>(detailKey, (currentOrder) =>
+        currentOrder ? { ...currentOrder, status: "CANCELLED" } : currentOrder,
       );
 
-      if (!response.ok) {
-        const apiError = (await response.json()) as ApiError;
-        throw new Error(apiError.message);
+      queryClient.setQueryData<Order[]>(listKey, (currentOrders) =>
+        currentOrders?.map((currentOrder) =>
+          currentOrder.id === orderId
+            ? { ...currentOrder, status: "CANCELLED" }
+            : currentOrder,
+        ),
+      );
+      return {
+        previousOrder,
+        previousOrders,
+      };
+    },
+    onError: (error, variables, snapshot) => {
+      if (snapshot?.previousOrder) {
+        queryClient.setQueryData(
+          orderKeys.detail(variables.orderId),
+          snapshot.previousOrder,
+        );
       }
+      if (snapshot?.previousOrders) {
+        queryClient.setQueryData(orderKeys.lists(), snapshot.previousOrders);
+      }
+      setCancelError(
+        error instanceof Error ? error.message : "Không thể hủy đơn hàng",
+      );
+    },
+    onSuccess: () => {
       setIsCancelModalOpen(false);
-      refetch();
-    } catch (error) {
-      if (error instanceof Error) {
-        setCancelError(error.message);
-      } else {
-        setCancelError("Không thể hủy đơn hàng");
-      }
-    } finally {
-      setIsCancelling(false);
+    },
+    onSettled: async (_data, _error, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: orderKeys.detail(variables.orderId),
+        }),
+        queryClient.invalidateQueries({ queryKey: orderKeys.lists() }),
+      ]);
+    },
+  });
+
+  function handleCancelOrder() {
+    if (!token || !order || cancelOrderMutation.isPending) {
+      return;
     }
+    setCancelError(null);
+    cancelOrderMutation.mutate({
+      orderId: order.id,
+      token,
+    });
   }
+
+  // async function handleCancelOrder() {
+  //   if (!token || !order || isCancelling) return;
+  //   setIsCancelling(true);
+  //   setCancelError(null);
+  //   try {
+  //     const response = await fetch(
+  //       `${import.meta.env.VITE_API_BASE_URL}/orders/${order.id}/cancel`,
+  //       { method: "PATCH", headers: { Authorization: `Bearer ${token}` } },
+  //     );
+
+  //     if (!response.ok) {
+  //       const apiError = (await response.json()) as ApiError;
+  //       throw new Error(apiError.message);
+  //     }
+  //     setIsCancelModalOpen(false);
+  //     refetch();
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       setCancelError(error.message);
+  //     } else {
+  //       setCancelError("Không thể hủy đơn hàng");
+  //     }
+  //   } finally {
+  //     setIsCancelling(false);
+  //   }
+  // }
 
   useEffect(() => {
     if (!toastMessage) return;
@@ -105,11 +190,11 @@ export default function OrderDetailPage() {
     };
   }, [toastMessage]);
 
-  if (status === "loading") {
+  if (isPending) {
     return <p role="status">Đang tải chi tiết đơn hàng...</p>;
   }
 
-  if (status === "error" && responseStatus === 404) {
+  if (isError && error instanceof ApiRequestError && error.status === 404) {
     return (
       <section>
         <h1>Không tìm thấy đơn hàng</h1>
@@ -118,11 +203,12 @@ export default function OrderDetailPage() {
     );
   }
 
-  if (status === "error") {
+  if (isError) {
     return (
       <section>
-        <p role="alert">{error ?? "Không thể tải đơn hàng"}</p>
-        <button type="button" onClick={refetch}>
+        <p role="alert">{error.message || "Không thể tải đơn hàng"}</p>
+
+        <button type="button" onClick={() => refetch()}>
           Thử lại
         </button>
       </section>
@@ -189,16 +275,16 @@ export default function OrderDetailPage() {
         <Button
           type="button"
           onClick={() => handleCancelOrder()}
-          disabled={isCancelling}
+          disabled={cancelOrderMutation.isPending}
         >
-          {isCancelling ? "Đang huỷ..." : "Xác nhận huỷ"}
+          {cancelOrderMutation.isPending ? "Đang huỷ..." : "Xác nhận huỷ"}
         </Button>
 
         <Button
           type="button"
           variant="secondary"
           onClick={() => setIsCancelModalOpen(false)}
-          disabled={isCancelling}
+          disabled={cancelOrderMutation.isPending}
         >
           Không, quay lại
         </Button>

@@ -1,4 +1,3 @@
-import type { FetchStatus } from "@/hooks/useFetch";
 import AttractionCard from "../components/AttractionCard";
 import AttractionCardSkeleton from "../components/AttractionCardSkeleton";
 import styles from "./AttractionListPage.module.css";
@@ -7,12 +6,15 @@ import { memo } from "react";
 
 const SKELETON_COUNT = 12;
 
+export type AttractionListStatus = "loading" | "error" | "success";
+
 interface AttractionListContentProps {
-  pageStatus: FetchStatus;
+  pageStatus: AttractionListStatus;
   attractions: Attraction[];
   pageError: string;
   currentPage: number;
   totalPages: number;
+  isUpdating: boolean;
   getParkName: (parkId: string) => string;
   onRetry: () => void;
   onClearFilters: () => void;
@@ -25,6 +27,7 @@ function AttractionListContent({
   pageError,
   currentPage,
   totalPages,
+  isUpdating,
   getParkName,
   onRetry,
   onClearFilters,
@@ -54,6 +57,12 @@ function AttractionListContent({
         </div>
       )}
 
+      {pageStatus === "success" && isUpdating && (
+        <p role="status" aria-live="polite">
+          Đang cập nhật danh sách...
+        </p>
+      )}
+
       {pageStatus === "success" && attractions.length === 0 && (
         <div className={styles.emptyState}>
           <h2>Không tìm thấy trải nghiệm</h2>
@@ -79,7 +88,7 @@ function AttractionListContent({
             <nav aria-label="Phân trang" className={styles.pagination}>
               <button
                 type="button"
-                disabled={currentPage === 1}
+                disabled={isUpdating || currentPage === 1}
                 onClick={() => {
                   onPageChange(currentPage - 1);
                 }}
@@ -91,7 +100,7 @@ function AttractionListContent({
               </span>
               <button
                 type="button"
-                disabled={currentPage >= totalPages}
+                disabled={isUpdating || currentPage >= totalPages}
                 onClick={() => {
                   onPageChange(currentPage + 1);
                 }}
