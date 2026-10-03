@@ -1,11 +1,15 @@
 import { Link, Outlet } from "react-router";
 import Layout from "@/components/ui/Layout";
-import { useCart } from "@/features/cart/cartContext";
 import { useState } from "react";
 import Drawer from "@/components/ui/Drawer";
 import CartItemRow from "@/features/cart/components/CartItemRow";
 import { useTheme } from "@/features/theme/themeContext";
 import { useAuth } from "@/features/auth/authContext";
+import {
+  selectTotalPrice,
+  selectTotalQuantity,
+  useCartStore,
+} from "@/features/cart/cartStore";
 
 const currencyFormatter = new Intl.NumberFormat("vi-VN", {
   style: "currency",
@@ -14,7 +18,14 @@ const currencyFormatter = new Intl.NumberFormat("vi-VN", {
 
 export default function AppLayout() {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { items, totalQuantity, totalPrice, dispatch } = useCart();
+  // const { items, totalQuantity, totalPrice, dispatch } = useCart();
+
+  const items = useCartStore((state) => state.items);
+  const totalQuantity = useCartStore(selectTotalQuantity);
+  const totalPrice = useCartStore(selectTotalPrice);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const removeItem = useCartStore((state) => state.removeItem);
+
   const { theme, toggleTheme } = useTheme();
   const { user, status, logout } = useAuth();
 
@@ -72,24 +83,30 @@ export default function AppLayout() {
                 <CartItemRow
                   key={`${item.attractionId}-${item.ticketType}`}
                   item={item}
+                  // onQuantityChange={(quantity) =>
+                  //   dispatch({
+                  //     type: "UPDATE_QUANTITY",
+                  //     payload: {
+                  //       attractionId: item.attractionId,
+                  //       ticketType: item.ticketType,
+                  //       quantity,
+                  //     },
+                  //   })
+                  // }
                   onQuantityChange={(quantity) =>
-                    dispatch({
-                      type: "UPDATE_QUANTITY",
-                      payload: {
-                        attractionId: item.attractionId,
-                        ticketType: item.ticketType,
-                        quantity,
-                      },
-                    })
+                    updateQuantity(item.attractionId, item.ticketType, quantity)
                   }
+                  // onRemove={() =>
+                  //   dispatch({
+                  //     type: "REMOVE_ITEM",
+                  //     payload: {
+                  //       attractionId: item.attractionId,
+                  //       ticketType: item.ticketType,
+                  //     },
+                  //   })
+                  // }
                   onRemove={() =>
-                    dispatch({
-                      type: "REMOVE_ITEM",
-                      payload: {
-                        attractionId: item.attractionId,
-                        ticketType: item.ticketType,
-                      },
-                    })
+                    removeItem(item.attractionId, item.ticketType)
                   }
                 />
               ))}

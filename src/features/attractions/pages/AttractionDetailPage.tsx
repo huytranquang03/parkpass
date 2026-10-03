@@ -5,7 +5,6 @@ import styles from "./AttractionDetailPage.module.css";
 import { createPortal } from "react-dom";
 import QuantityStepper from "@/components/ui/QuantityStepper";
 import type { CartItem } from "@/features/cart/types";
-import { useCart } from "@/features/cart/cartContext";
 import ErrorBoundary from "@/components/errors/ErrorBoundary";
 import ReviewWidget from "@/features/reviews/components/ReviewsWidget";
 import Toast from "@/components/ui/Toast";
@@ -14,6 +13,7 @@ import ParkClosingCountdownHooks from "../components/ParkClosingCountdownHooks";
 import { QueryErrorResetBoundary, useQuery } from "@tanstack/react-query";
 import { attractionDetailOptions } from "../queries";
 import { ApiRequestError } from "@/lib/apiError";
+import { useCartStore } from "@/features/cart/cartStore";
 
 const TICKET_OPTIONS: TicketOption[] = [
   { type: "ADULT", label: "Người lớn" },
@@ -73,8 +73,9 @@ export default function AttractionDetailPage() {
   );
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const { dispatch } = useCart();
+  const addItems = useCartStore((state) => state.addItems);
 
+  // const { dispatch } = useCart();
   // const [status, setStatus] = useState<
   //   "loading" | "success" | "error" | "not-found"
   // >("loading");
@@ -186,10 +187,11 @@ export default function AttractionDetailPage() {
       price: attraction.prices[ticket.type],
       quantity: quantities[ticket.type],
     }));
-    dispatch({
-      type: "ADD_ITEMS",
-      payload: selectedItems,
-    });
+    // dispatch({
+    //   type: "ADD_ITEMS",
+    //   payload: selectedItems,
+    // });
+    addItems(selectedItems);
     setToastMessage(`Đã thêm ${totalQuantity} vé vào giỏ hàng`);
     setQuantities({ ...INITIAL_QUANTITIES });
   }

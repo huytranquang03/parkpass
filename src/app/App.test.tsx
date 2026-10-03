@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createMemoryRouter, RouterProvider } from "react-router";
-import { CartProvider } from "@/features/cart/CartProvider";
 import { ThemeContext } from "@/features/theme/themeContext";
 import { AuthContext } from "@/features/auth/authContext";
 import AppLayout from "./AppLayout";
@@ -12,23 +11,21 @@ describe("app shell", () => {
       [
         {
           element: (
-            <CartProvider>
-              <ThemeContext.Provider
-                value={{ theme: "light", toggleTheme: () => {} }}
+            <ThemeContext.Provider
+              value={{ theme: "light", toggleTheme: () => {} }}
+            >
+              <AuthContext.Provider
+                value={{
+                  user: null,
+                  token: null,
+                  status: "anonymous",
+                  login: () => Promise.resolve(),
+                  logout: () => {},
+                }}
               >
-                <AuthContext.Provider
-                  value={{
-                    user: null,
-                    token: null,
-                    status: "anonymous",
-                    login: () => Promise.resolve(),
-                    logout: () => {},
-                  }}
-                >
-                  <AppLayout />
-                </AuthContext.Provider>
-              </ThemeContext.Provider>
-            </CartProvider>
+                <AppLayout />
+              </AuthContext.Provider>
+            </ThemeContext.Provider>
           ),
           children: [
             {

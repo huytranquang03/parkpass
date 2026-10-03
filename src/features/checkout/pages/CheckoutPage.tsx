@@ -1,6 +1,5 @@
 import { useRef, useState, type SubmitEvent } from "react";
 import styles from "./CheckoutPage.module.css";
-import { useCart } from "@/features/cart/cartContext";
 import TicketSummaryCard from "../components/TicketSummaryCard";
 import { Link, useNavigate } from "react-router";
 import Button from "@/components/ui/Button";
@@ -9,6 +8,7 @@ import type { CreateOrderRequest } from "@/features/orders/types";
 import { ApiRequestError } from "@/lib/apiError";
 import { useMutation } from "@tanstack/react-query";
 import { createOrder } from "@/features/orders/api";
+import { selectTotalPrice, useCartStore } from "@/features/cart/cartStore";
 
 interface CheckoutFormValues {
   fullName: string;
@@ -48,7 +48,11 @@ export default function CheckoutPage() {
   // const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const { items, totalPrice, dispatch } = useCart();
+  // const { items, totalPrice, dispatch } = useCart();
+  const items = useCartStore((state) => state.items);
+  const totalPrice = useCartStore(selectTotalPrice);
+  const clearCart = useCartStore((state) => state.clearCart);
+
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -275,7 +279,8 @@ export default function CheckoutPage() {
     try {
       const order = await createOrderMutation.mutateAsync(requestBody);
 
-      dispatch({ type: "CLEAR_CART" });
+      // dispatch({ type: "CLEAR_CART" });
+      clearCart();
 
       navigate(`/orders/${order.id}`, {
         replace: true,
