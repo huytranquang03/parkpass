@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ParkPass · Chi tiết đơn PP-000126</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;background:#F1F5F9;color:#0F172A}
+a{color:#0F766E}a:hover{color:#115E59}
+input,select,button,textarea{font:inherit;color:inherit}
+@keyframes pp-spin{to{transform:rotate(360deg)}}
+@keyframes pp-shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+.pp-spin{animation:pp-spin 1s linear infinite;transform-origin:center}
+.pp-skeleton{background:linear-gradient(90deg,#F1F5F9 0%,#E2E8F0 50%,#F1F5F9 100%);background-size:200% 100%;animation:pp-shimmer 1.2s linear infinite}
+@media (prefers-reduced-motion:reduce){.pp-spin,.pp-skeleton{animation:none}}
+</style>
+<style>
+/* Khung canvas: artboard giu nguyen kich thuoc 1280x920 nhu tren design canvas. Moi gia tri inline style la px CSS, doc truc tiep bang DevTools. */
+body{padding:24px;min-width:1328px}
+</style>
+</head>
+<body>
+<div style="width: 1280px; height: 920px; box-sizing: border-box; display: flex; flex-direction: column; background: #F1F5F9; overflow: hidden; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #0F172A">
+<div style="height: 40px; flex-shrink: 0; box-sizing: border-box; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; background: #F1F5F9; color: #475569; font-size: 12px; line-height: 16px; font-weight: 500">
+<span>06b · Chi tiết đơn · modal xác nhận hủy đang mở</span>
+<span>Desktop · 1280px · modal</span>
+</div>
+<div style="width: 1280px; height: 880px; flex-shrink: 0; background: #FFFFFF; overflow: hidden; display: flex; flex-direction: column; position: relative">
+<header data-component="AppHeader" style="height: 64px; flex-shrink: 0; box-sizing: border-box; padding: 0 40px; display: flex; align-items: center; gap: 24px; background: #FFFFFF; border-bottom: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgb(15 23 42 / .06); position: relative; z-index: 20">
+<a href="Main.html" data-component="Logo" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #0F172A; font-size: 18px; line-height: 28px; font-weight: 700">
+<span style="width: 28px; height: 28px; border-radius: 8px; background: #0F766E; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center"><svg  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M2 9V6h20v3a3 3 0 0 0 0 6v3H2v-3a3 3 0 0 0 0-6z"/><path d="M13 6v12"/></svg></span>ParkPass
+</a>
+<div data-component="SearchBox" style="flex: 1 1 auto; max-width: 480px; height: 44px; box-sizing: border-box; border: 1px solid #64748B; border-radius: 8px; background: #FFFFFF; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: #64748B; position: relative">
+<svg  width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+<label for="search" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Tìm attraction</label>
+<input id="search" type="search" placeholder="Tìm attraction, công viên..." value="" style="flex: 1 1 auto; min-width: 0; height: 40px; border: 0; outline: 0; background: transparent; font-size: 16px; line-height: 24px; color: #0F172A; padding: 0">
+<kbd style="height: 22px; padding: 0 6px; box-sizing: border-box; border: 1px solid #E2E8F0; border-radius: 6px; font-family: inherit; font-size: 12px; line-height: 20px; color: #64748B; background: #F1F5F9">/</kbd>
+</div>
+<div style="flex: 1 1 auto"></div>
+<button type="button" data-component="ThemeToggle" aria-label="Đổi giao diện sáng tối" style="width: 44px; height: 44px; border: 0; border-radius: 8px; background: transparent; color: #475569; display: inline-flex; align-items: center; justify-content: center; cursor: pointer"><svg  width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+<a href="CartDrawer.html" data-component="CartButton" aria-label="Giỏ vé, 4 vé" style="width: 44px; height: 44px; border-radius: 8px; color: #475569; display: inline-flex; align-items: center; justify-content: center; position: relative; text-decoration: none">
+<svg  width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+<span style="position: absolute; top: 2px; right: 2px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: #0F766E; color: #FFFFFF; font-size: 12px; line-height: 18px; font-weight: 600; text-align: center">4</span>
+</a>
+<a href="Orders.html" data-component="Avatar" aria-label="Tài khoản và đơn hàng" style="width: 36px; height: 36px; border-radius: 999px; background: #F0FDFA; color: #0F766E; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; text-decoration: none">HT</a>
+</header><div data-component="Container" style="width: 1200px; margin: 0 auto; padding: 24px 0 40px; box-sizing: border-box; display: flex; gap: 24px; align-items: flex-start"><div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column">
+<a href="Orders.html" style="display: inline-flex; align-items: center; gap: 4px; font-size: 14px; line-height: 20px; color: #475569; text-decoration: none"><svg  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M15 18l-6-6 6-6"/></svg>Đơn hàng của tôi</a>
+<div style="display: flex; align-items: center; gap: 12px; margin-top: 12px">
+<h1 style="margin: 0; font-size: 24px; line-height: 32px; font-weight: 700">Đơn PP-000126</h1>
+<span data-component="StatusBadge" data-status="PENDING" style="display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 6px; background: #FEF3C7; color: #92400E; font-size: 12px; line-height: 16px; font-weight: 500; white-space: nowrap">Chờ thanh toán</span>
+<span style="font-size: 14px; line-height: 20px; color: #475569">Đặt ngày 29/09/2026 · 14:32</span>
+<div style="flex: 1 1 auto"></div>
+<button type="button" data-component="Button" data-variant="danger-secondary" data-size="md" data-state="default" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 16px;  box-sizing: border-box; border-radius: 8px; border: 1px solid #DC2626; background: transparent; color: #DC2626; font-size: 14px; line-height: 20px; font-weight: 500; cursor: pointer; text-decoration: none; white-space: nowrap; "><span>Hủy đơn</span></button>
+<button type="button" data-component="Button" data-variant="primary" data-size="md" data-state="default" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 16px;  box-sizing: border-box; border-radius: 8px; border: 1px solid transparent; background: #0F766E; color: #FFFFFF; font-size: 14px; line-height: 20px; font-weight: 500; cursor: pointer; text-decoration: none; white-space: nowrap; "><span>Thanh toán ngay</span></button>
+</div>
+<div style="margin-top: 24px; border: 1px solid #E2E8F0; border-radius: 12px; background: #F8FAFC; overflow: hidden">
+<table data-component="OrderItemsTable" style="width: 100%; border-collapse: collapse"><thead><tr><th scope="col" style="padding: 12px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 500; color: #475569; background: #F1F5F9">Attraction</th><th scope="col" style="padding: 12px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 500; color: #475569; background: #F1F5F9">Loại vé</th><th scope="col" style="padding: 12px 16px; text-align: right; font-size: 12px; line-height: 16px; font-weight: 500; color: #475569; background: #F1F5F9">SL</th><th scope="col" style="padding: 12px 16px; text-align: right; font-size: 12px; line-height: 16px; font-weight: 500; color: #475569; background: #F1F5F9">Đơn giá</th><th scope="col" style="padding: 12px 16px; text-align: right; font-size: 12px; line-height: 16px; font-weight: 500; color: #475569; background: #F1F5F9">Thành tiền</th></tr></thead><tbody><tr>
+<td style="padding: 12px 16px; border-top: 1px solid #E2E8F0; font-size: 14px; line-height: 20px; font-weight: 500">Aquatopia Water Park</td>
+<td style="padding: 12px 16px; border-top: 1px solid #E2E8F0; font-size: 14px; line-height: 20px; color: #475569">Người lớn</td>
+<td style="padding: 12px 16px; border-top: 1px solid #E2E8F0; font-size: 14px; line-height: 20px; text-align: right; font-variant-numeric: tabular-nums">2</td>
+<td style="padding: 12px 16px; border-top: 1px solid #E2E8F0; font-size: 14px; line-height: 20px; text-align: right; font-variant-numeric: tabular-nums">450.000 ₫</td>
+<td style="padding: 12px 16px; border-top: 1px solid #E2E8F0; font-size: 14px; line-height: 20px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums">900.000 ₫</td>
+</tr></tbody></table>
+</div>
+<div style="display: flex; gap: 24px; margin-top: 24px; align-items: flex-start">
+<div style="flex: 1 1 auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding: 20px; border: 1px solid #E2E8F0; border-radius: 12px; background: #F8FAFC"><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; line-height: 16px; color: #475569">Người đặt</span><span style="font-size: 14px; line-height: 20px; font-weight: 500">Nguyễn Văn An · 0912 345 678</span></div><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; line-height: 16px; color: #475569">Ngày tham quan</span><span style="font-size: 14px; line-height: 20px; font-weight: 500">Thứ Bảy, 03/10/2026</span></div><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; line-height: 16px; color: #475569">Công viên</span><span style="font-size: 14px; line-height: 20px; font-weight: 500">Sun World Hòn Thơm</span></div></div>
+<div style="width: 360px; flex-shrink: 0; padding: 20px; border: 1px solid #E2E8F0; border-radius: 12px; background: #F8FAFC; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 20px">
+<div style="display: flex; justify-content: space-between"><span style="color: #475569">Tạm tính</span><span style="font-weight: 600; font-variant-numeric: tabular-nums">900.000 ₫</span></div>
+<div style="display: flex; justify-content: space-between"><span style="color: #475569">Giảm giá</span><span style="color: #64748B">Không áp dụng</span></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid #E2E8F0; margin-top: 8px; padding-top: 12px"><span style="font-weight: 500">Tổng</span><span style="font-size: 20px; line-height: 28px; font-weight: 700; font-variant-numeric: tabular-nums">900.000 ₫</span></div>
+</div>
+</div>
+</div></div><div aria-hidden="true" data-component="Overlay" style="position: absolute; inset: 0; background: rgb(15 23 42 / .5); z-index: 40"></div>
+<div role="dialog" data-component="Modal" aria-modal="true" aria-labelledby="cancel-title" aria-describedby="cancel-desc" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 440px; box-sizing: border-box; padding: 24px; background: #FFFFFF; border-radius: 16px; box-shadow: 0 16px 40px rgb(15 23 42 / .16); z-index: 60; display: flex; flex-direction: column">
+<div style="display: flex; gap: 12px; align-items: flex-start">
+<span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 999px; background: #FEE2E2; color: #991B1B; display: inline-flex; align-items: center; justify-content: center"><svg  width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></span>
+<div style="display: flex; flex-direction: column">
+<h2 id="cancel-title" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600">Hủy đơn PP-000126?</h2>
+<p id="cancel-desc" style="margin: 8px 0 0; font-size: 14px; line-height: 20px; color: #475569">Vé chưa thanh toán sẽ bị hủy ngay và không thể khôi phục. Bạn vẫn có thể đặt lại sau.</p>
+</div>
+</div>
+<div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px">
+<button type="button" data-component="Button" data-variant="secondary" data-size="md" data-state="focus" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 16px;  box-sizing: border-box; border-radius: 8px; border: 1px solid #E2E8F0; background: #F8FAFC; color: #0F172A; font-size: 14px; line-height: 20px; font-weight: 500; cursor: pointer; text-decoration: none; white-space: nowrap; outline: 2px solid #0F766E; outline-offset: 2px; "><span>Quay lại</span></button>
+<button type="button" data-component="Button" data-variant="danger" data-size="md" data-state="default" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 16px;  box-sizing: border-box; border-radius: 8px; border: 1px solid transparent; background: #DC2626; color: #FFFFFF; font-size: 14px; line-height: 20px; font-weight: 500; cursor: pointer; text-decoration: none; white-space: nowrap; "><span>Hủy đơn</span></button>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ParkPass · Mockup HTML</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;padding:40px;font-family:Inter,system-ui,sans-serif;color:#0F172A;background:#F8FAFC;line-height:1.5}
+main{max-width:760px}
+h1{font-size:24px;margin:0 0 8px}
+p{margin:0 0 12px;color:#475569}
+ol{padding-left:20px}
+li{margin:6px 0}
+a{color:#0F766E}
+.dim{color:#64748B;font-size:12px;margin-left:6px}
+.box{background:#FFFFFF;border:1px solid #E2E8F0;border-radius:12px;padding:16px 20px;margin:16px 0}
+code{background:#F1F5F9;border-radius:6px;padding:1px 6px;font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<h1>ParkPass · Mockup HTML (inspect được)</h1>
+<p>Mỗi màn dưới đây là chính artboard trên design canvas, lưu thành HTML thuần. Mở màn, bấm <code>F12</code> (DevTools) → tab Elements, click vào phần tử bất kỳ: giá trị <code>padding</code>, <code>gap</code>, <code>font-size</code>, <code>color</code>, <code>border-radius</code> ghi thẳng trong <code>style</code> inline, đơn vị px CSS, khớp bảng token trong <code>DESIGN-SPEC.md</code>.</p>
+<div class="box">
+<strong>Cách dùng cho đúng</strong>
+<ol>
+<li>Đối chiếu hex với bảng 2.1 để gọi đúng tên token (<code>#0F766E</code> → <code>--color-brand</code>). Không copy hex vào code.</li>
+<li>Số đo trong mockup là kết quả của token, ví dụ <code>padding: 16px</code> là <code>spacing-4</code>. Code bằng token, không hard-code số.</li>
+<li>Link giữa các màn (card → chi tiết → giỏ → thanh toán) bấm được, dùng để nắm luồng.</li>
+<li>Dải nhãn màu xám trên cùng mỗi màn là tên artboard, không phải UI.</li>
+</ol>
+</div>
+<ol>
+<li><a href="Main.html">01 · Danh sách attraction</a> <span class="dim">1280×960</span></li><li><a href="Detail.html">03 · Chi tiết attraction</a> <span class="dim">1280×1460</span></li><li><a href="Checkout.html">05 · Checkout</a> <span class="dim">1280×1000</span></li><li><a href="Login.html">07 · Login</a> <span class="dim">1280×840</span></li><li><a href="LoginError.html">07b · Login · lỗi 401</a> <span class="dim">1280×840</span></li><li><a href="ListStates.html">02 · Danh sách · loading / empty / error</a> <span class="dim">4000×960</span></li><li><a href="CartDrawer.html">04 · Cart drawer</a> <span class="dim">1280×960</span></li><li><a href="CartDrawerEmpty.html">04b · Cart drawer · giỏ trống</a> <span class="dim">1280×960</span></li><li><a href="Orders.html">06 · Danh sách đơn</a> <span class="dim">1280×920</span></li><li><a href="OrderDetail.html">06b · Chi tiết đơn · modal hủy</a> <span class="dim">1280×920</span></li><li><a href="MobileList.html">08a · Mobile · danh sách</a> <span class="dim">390×884</span></li><li><a href="MobileDetail.html">08b · Mobile · chi tiết</a> <span class="dim">390×884</span></li><li><a href="MobileCheckout.html">08c · Mobile · checkout</a> <span class="dim">390×884</span></li><li><a href="DarkList.html">09a · Dark mode · danh sách</a> <span class="dim">1280×960</span></li><li><a href="DarkDetail.html">09b · Dark mode · chi tiết</a> <span class="dim">1280×1460</span></li><li><a href="Redline.html">10 · Redline · component + số đo</a> <span class="dim">1760×2040</span></li>
+</ol>
+<p class="dim">Export từ canvas ParkPass · Design. Khi design đổi, xuất lại cả <code>exports/</code> (ảnh) và <code>mockups/</code> (HTML) để hai lớp không lệch nhau.</p>
+</main>
+</body>
+</html>
