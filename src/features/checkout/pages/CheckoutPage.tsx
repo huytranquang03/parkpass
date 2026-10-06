@@ -1,4 +1,5 @@
-import { useRef, useState, type SubmitEvent } from "react";
+// import { useRef, useState, type SubmitEvent } from "react";
+
 import styles from "./CheckoutPage.module.css";
 import TicketSummaryCard from "../components/TicketSummaryCard";
 import { Link, useNavigate } from "react-router";
@@ -9,26 +10,39 @@ import { ApiRequestError } from "@/lib/apiError";
 import { useMutation } from "@tanstack/react-query";
 import { createOrder } from "@/features/orders/api";
 import { selectTotalPrice, useCartStore } from "@/features/cart/cartStore";
+import { checkoutSchema, type CheckoutFormValues } from "../checkoutSchema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 
-interface CheckoutFormValues {
-  fullName: string;
-  email: string;
-  phone: string;
-  visitDate: string;
-  promoCode: string;
-  acceptTerms: boolean;
-}
+// interface CheckoutFormValues {
+//   fullName: string;
+//   email: string;
+//   phone: string;
+//   visitDate: string;
+//   promoCode: string;
+//   acceptTerms: boolean;
+// }
 
-interface CheckoutFormErrors {
-  fullName?: string;
-  email?: string;
-  phone?: string;
-  visitDate?: string;
-  promoCode?: string;
-  acceptTerms?: string;
-}
+// interface CheckoutFormErrors {
+//   fullName?: string;
+//   email?: string;
+//   phone?: string;
+//   visitDate?: string;
+//   promoCode?: string;
+//   acceptTerms?: string;
+// }
 
-type TextFieldName = "fullName" | "email" | "phone" | "visitDate" | "promoCode";
+// type TextFieldName = "fullName" | "email" | "phone" | "visitDate" | "promoCode";
+
+const CHECKOUT_FIELD_ORDER: Array<keyof CheckoutFormValues> = [
+  "fullName",
+  "email",
+  "phone",
+  "visitDate",
+  "promoCode",
+  "acceptTerms",
+];
 
 const INITIAL_FORM_VALUES: CheckoutFormValues = {
   fullName: "",
@@ -40,8 +54,22 @@ const INITIAL_FORM_VALUES: CheckoutFormValues = {
 };
 
 export default function CheckoutPage() {
-  const [values, setValues] = useState<CheckoutFormValues>(INITIAL_FORM_VALUES);
-  const [errors, setErrors] = useState<CheckoutFormErrors>({});
+  // const [values, setValues] = useState<CheckoutFormValues>(INITIAL_FORM_VALUES);
+  // const [errors, setErrors] = useState<CheckoutFormErrors>({});
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    clearErrors,
+    setFocus,
+    formState: { errors, isSubmitting },
+  } = useForm<CheckoutFormValues>({
+    resolver: zodResolver(checkoutSchema),
+    defaultValues: INITIAL_FORM_VALUES,
+    shouldFocusError: true,
+  });
+
   const [isCheckingPromo, setIsCheckingPromo] = useState(false);
   const [promoMessage, setPromoMessage] = useState<string | null>(null);
 
@@ -65,100 +93,106 @@ export default function CheckoutPage() {
     },
   });
 
-  const fullNameRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const phoneRef = useRef<HTMLInputElement>(null);
-  const visitDateRef = useRef<HTMLInputElement>(null);
-  const promoCodeRef = useRef<HTMLInputElement>(null);
-  const acceptTermsRef = useRef<HTMLInputElement>(null);
+  // const fullNameRef = useRef<HTMLInputElement>(null);
+  // const emailRef = useRef<HTMLInputElement>(null);
+  // const phoneRef = useRef<HTMLInputElement>(null);
+  // const visitDateRef = useRef<HTMLInputElement>(null);
+  // const promoCodeRef = useRef<HTMLInputElement>(null);
+  // const acceptTermsRef = useRef<HTMLInputElement>(null);
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   let submitButtonText = "Xác nhận đặt vé";
-
   if (isCheckingPromo) {
     submitButtonText = "Đang kiểm tra mã...";
-  } else if (createOrderMutation.isPending) {
+  } else if (isSubmitting || createOrderMutation.isPending) {
     submitButtonText = "Đang tạo đơn...";
   }
 
-  function handleTextChange(field: TextFieldName, value: string) {
-    setValues((current) => ({ ...current, [field]: value }));
+  // if (isCheckingPromo) {
+  //   submitButtonText = "Đang kiểm tra mã...";
+  // } else if (createOrderMutation.isPending) {
+  //   submitButtonText = "Đang tạo đơn...";
+  // }
 
-    if (field === "promoCode") {
-      setPromoMessage(null);
-      setErrors((current) => ({
-        ...current,
-        promoCode: undefined,
-      }));
-    }
-  }
+  // function handleTextChange(field: TextFieldName, value: string) {
+  //   setValues((current) => ({ ...current, [field]: value }));
 
-  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
+  //   if (field === "promoCode") {
+  //     setPromoMessage(null);
+  //     setErrors((current) => ({
+  //       ...current,
+  //       promoCode: undefined,
+  //     }));
+  //   }
+  // }
 
+  // async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  //   event.preventDefault();
+
+  // const nextErrors: CheckoutFormErrors = {};
+  // if (!values.fullName.trim()) {
+  //   nextErrors.fullName = "Vui lòng nhập họ và tên";
+  // }
+  // if (!emailRegex.test(values.email.trim())) {
+  //   nextErrors.email = "Email không hợp lệ";
+  // }
+  // const normalizedPhone = values.phone.replace(/[\s().-]/g, "");
+
+  // if (!/^(?:0|\+84)(?:[35789]\d{8}|2\d{9})$/.test(normalizedPhone)) {
+  //   nextErrors.phone = "Số điện thoại Việt Nam không hợp lệ";
+  // }
+
+  // const today = new Date();
+  // today.setHours(0, 0, 0, 0);
+
+  // const latestDate = new Date(today);
+  // latestDate.setDate(latestDate.getDate() + 90);
+
+  // const visitDate = new Date(`${values.visitDate}T00:00:00`);
+
+  // if (!values.visitDate || Number.isNaN(visitDate.getTime())) {
+  //   nextErrors.visitDate = "Vui lòng chọn ngày tham quan";
+  // } else if (visitDate < today) {
+  //   nextErrors.visitDate = "Ngày tham quan không được ở quá khứ";
+  // } else if (visitDate > latestDate) {
+  //   nextErrors.visitDate = "Ngày tham quan phải trong vòng 90 ngày tới";
+  // }
+
+  // if (!values.acceptTerms) {
+  //   nextErrors.acceptTerms = "Bạn cần đồng ý với điều khoản";
+  // }
+
+  // setErrors(nextErrors);
+
+  // if (nextErrors.fullName) {
+  //   fullNameRef.current?.focus();
+  //   return;
+  // }
+
+  // if (nextErrors.email) {
+  //   emailRef.current?.focus();
+  //   return;
+  // }
+
+  // if (nextErrors.phone) {
+  //   phoneRef.current?.focus();
+  //   return;
+  // }
+
+  // if (nextErrors.visitDate) {
+  //   visitDateRef.current?.focus();
+  //   return;
+  // }
+
+  // if (nextErrors.acceptTerms) {
+  //   acceptTermsRef.current?.focus();
+  //   return;
+  // }
+  async function handleCheckoutSubmit(values: CheckoutFormValues) {
     if (isCheckingPromo || createOrderMutation.isPending) return;
 
-    const nextErrors: CheckoutFormErrors = {};
-    if (!values.fullName.trim()) {
-      nextErrors.fullName = "Vui lòng nhập họ và tên";
-    }
-    if (!emailRegex.test(values.email.trim())) {
-      nextErrors.email = "Email không hợp lệ";
-    }
     const normalizedPhone = values.phone.replace(/[\s().-]/g, "");
-
-    if (!/^(?:0|\+84)(?:[35789]\d{8}|2\d{9})$/.test(normalizedPhone)) {
-      nextErrors.phone = "Số điện thoại Việt Nam không hợp lệ";
-    }
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const latestDate = new Date(today);
-    latestDate.setDate(latestDate.getDate() + 90);
-
-    const visitDate = new Date(`${values.visitDate}T00:00:00`);
-
-    if (!values.visitDate || Number.isNaN(visitDate.getTime())) {
-      nextErrors.visitDate = "Vui lòng chọn ngày tham quan";
-    } else if (visitDate < today) {
-      nextErrors.visitDate = "Ngày tham quan không được ở quá khứ";
-    } else if (visitDate > latestDate) {
-      nextErrors.visitDate = "Ngày tham quan phải trong vòng 90 ngày tới";
-    }
-
-    if (!values.acceptTerms) {
-      nextErrors.acceptTerms = "Bạn cần đồng ý với điều khoản";
-    }
-
-    setErrors(nextErrors);
-
-    if (nextErrors.fullName) {
-      fullNameRef.current?.focus();
-      return;
-    }
-
-    if (nextErrors.email) {
-      emailRef.current?.focus();
-      return;
-    }
-
-    if (nextErrors.phone) {
-      phoneRef.current?.focus();
-      return;
-    }
-
-    if (nextErrors.visitDate) {
-      visitDateRef.current?.focus();
-      return;
-    }
-
-    if (nextErrors.acceptTerms) {
-      acceptTermsRef.current?.focus();
-      return;
-    }
-
     const code = values.promoCode.trim().toUpperCase();
 
     if (code) {
@@ -182,8 +216,14 @@ export default function CheckoutPage() {
         } else {
           message = "Không kiểm tra được mã";
         }
-        setErrors((current) => ({ ...current, promoCode: message }));
-        promoCodeRef.current?.focus();
+        // setErrors((current) => ({ ...current, promoCode: message }));
+        // promoCodeRef.current?.focus();
+        setError("promoCode", {
+          type: "server",
+          message,
+        });
+
+        setFocus("promoCode");
         return;
       } finally {
         setIsCheckingPromo(false);
@@ -288,15 +328,38 @@ export default function CheckoutPage() {
       });
     } catch (error) {
       if (error instanceof ApiRequestError && error.status === 422) {
-        const fieldErrors = (error.fieldErrors ?? {}) as CheckoutFormErrors;
+        // const fieldErrors = (error.fieldErrors ?? {}) as CheckoutFormErrors;
 
-        setErrors(fieldErrors);
-        if (fieldErrors.fullName) fullNameRef.current?.focus();
-        else if (fieldErrors.email) emailRef.current?.focus();
-        else if (fieldErrors.phone) phoneRef.current?.focus();
-        else if (fieldErrors.visitDate) visitDateRef.current?.focus();
-        else if (fieldErrors.promoCode) promoCodeRef.current?.focus();
-        else if (fieldErrors.acceptTerms) acceptTermsRef.current?.focus();
+        // setErrors(fieldErrors);
+        // if (fieldErrors.fullName) fullNameRef.current?.focus();
+        // else if (fieldErrors.email) emailRef.current?.focus();
+        // else if (fieldErrors.phone) phoneRef.current?.focus();
+        // else if (fieldErrors.visitDate) visitDateRef.current?.focus();
+        // else if (fieldErrors.promoCode) promoCodeRef.current?.focus();
+        // else if (fieldErrors.acceptTerms) acceptTermsRef.current?.focus();
+        // return;
+
+        const fieldErrors = error.fieldErrors ?? {};
+
+        for (const field of CHECKOUT_FIELD_ORDER) {
+          const message = fieldErrors[field];
+
+          if (message) {
+            setError(field, {
+              type: "server",
+              message,
+            });
+          }
+        }
+
+        const firstInvalidField = CHECKOUT_FIELD_ORDER.find(
+          (field) => fieldErrors[field],
+        );
+
+        if (firstInvalidField) {
+          setFocus(firstInvalidField);
+        }
+
         return;
       }
 
@@ -322,22 +385,28 @@ export default function CheckoutPage() {
     <section className={styles.page}>
       <h1>Thông tin đặt vé</h1>
       <TicketSummaryCard items={items} totalPrice={totalPrice} />
-      <form className={styles.form} noValidate onSubmit={handleSubmit}>
+      <form
+        className={styles.form}
+        noValidate
+        onSubmit={handleSubmit(handleCheckoutSubmit)}
+      >
         <div className={styles.field}>
           <label htmlFor="full-name">Họ và tên</label>
           <input
             id="full-name"
-            name="fullName"
-            ref={fullNameRef}
+            // name="fullName"
+            // ref={fullNameRef}
             type="text"
-            value={values.fullName}
-            onChange={(event) =>
-              handleTextChange("fullName", event.currentTarget.value)
-            }
+            // value={values.fullName}
+            // onChange={(event) =>
+            //   handleTextChange("fullName", event.currentTarget.value)
+            // }
+            {...register("fullName")}
           />
           {errors.fullName && (
             <p id="full-name-error" className={styles.error}>
-              {errors.fullName}
+              {/* {errors.fullName} */}
+              {errors.fullName.message}
             </p>
           )}
         </div>
@@ -345,17 +414,19 @@ export default function CheckoutPage() {
           <label htmlFor="email">Email</label>
           <input
             id="email"
-            name="email"
-            ref={emailRef}
+            // name="email"
+            // ref={emailRef}
             type="email"
-            value={values.email}
-            onChange={(event) =>
-              handleTextChange("email", event.currentTarget.value)
-            }
+            // value={values.email}
+            // onChange={(event) =>
+            //   handleTextChange("email", event.currentTarget.value)
+            // }
+            {...register("email")}
           />
           {errors.email && (
             <p className={styles.error} id="email-error">
-              {errors.email}
+              {/* {errors.email} */}
+              {errors.email.message}
             </p>
           )}
         </div>
@@ -363,17 +434,19 @@ export default function CheckoutPage() {
           <label htmlFor="phone">Số điện thoại</label>
           <input
             id="phone"
-            name="phone"
-            ref={phoneRef}
+            // name="phone"
+            // ref={phoneRef}
             type="tel"
-            value={values.phone}
-            onChange={(event) =>
-              handleTextChange("phone", event.currentTarget.value)
-            }
+            // value={values.phone}
+            // onChange={(event) =>
+            //   handleTextChange("phone", event.currentTarget.value)
+            // }
+            {...register("phone")}
           />
           {errors.phone && (
             <p className={styles.error} id="phone-error">
-              {errors.phone}
+              {/* {errors.phone} */}
+              {errors.phone.message}
             </p>
           )}
         </div>
@@ -381,17 +454,19 @@ export default function CheckoutPage() {
           <label htmlFor="visit-date">Ngày tham quan</label>
           <input
             id="visit-date"
-            name="visitDate"
-            ref={visitDateRef}
+            // name="visitDate"
+            // ref={visitDateRef}
             type="date"
-            value={values.visitDate}
-            onChange={(event) =>
-              handleTextChange("visitDate", event.currentTarget.value)
-            }
+            // value={values.visitDate}
+            // onChange={(event) =>
+            //   handleTextChange("visitDate", event.currentTarget.value)
+            // }
+            {...register("visitDate")}
           />
           {errors.visitDate && (
             <p className={styles.error} id="visit-date-error">
-              {errors.visitDate}
+              {/* {errors.visitDate} */}
+              {errors.visitDate.message}
             </p>
           )}
         </div>
@@ -399,18 +474,26 @@ export default function CheckoutPage() {
           <label htmlFor="promo-code">Mã khuyến mãi (không bắt buộc)</label>
           <input
             id="promo-code"
-            name="promoCode"
-            ref={promoCodeRef}
-            disabled={isCheckingPromo}
+            // name="promoCode"
+            // ref={promoCodeRef}
+            // disabled={isCheckingPromo}
+            readOnly={isCheckingPromo}
             type="text"
-            value={values.promoCode}
-            onChange={(event) =>
-              handleTextChange("promoCode", event.currentTarget.value)
-            }
+            // value={values.promoCode}
+            // onChange={(event) =>
+            //   handleTextChange("promoCode", event.currentTarget.value)
+            // }
+            {...register("promoCode", {
+              onChange: () => {
+                setPromoMessage(null);
+                clearErrors("promoCode");
+              },
+            })}
           />
           {errors.promoCode && (
             <p id="promo-code-error" className={styles.error}>
-              {errors.promoCode}
+              {/* {errors.promoCode} */}
+              {errors.promoCode.message}
             </p>
           )}
 
@@ -419,29 +502,34 @@ export default function CheckoutPage() {
         <label className={styles.terms}>
           <input
             id="acceptTerms"
-            name="acceptTerms"
-            ref={acceptTermsRef}
+            // name="acceptTerms"
+            // ref={acceptTermsRef}
             type="checkbox"
-            checked={values.acceptTerms}
-            onChange={(event) => {
-              const checked = event.currentTarget.checked;
-              setValues((currentValue) => ({
-                ...currentValue,
-                acceptTerms: checked,
-              }));
-            }}
+            // checked={values.acceptTerms}
+            // onChange={(event) => {
+            //   const checked = event.currentTarget.checked;
+            //   setValues((currentValue) => ({
+            //     ...currentValue,
+            //     acceptTerms: checked,
+            //   }));
+            // }}
+            {...register("acceptTerms")}
           />
           Tôi đồng ý với điều khoản
         </label>
         {errors.acceptTerms && (
           <p className={styles.error} id="accept-terms-error">
-            {errors.acceptTerms}
+            {/* {errors.acceptTerms} */}
+            {errors.acceptTerms.message}
           </p>
         )}
         {submitError && <p role="alert">{submitError}</p>}
         <Button
           type="submit"
-          disabled={isCheckingPromo || createOrderMutation.isPending}
+          // disabled={isCheckingPromo || createOrderMutation.isPending}
+          disabled={
+            isCheckingPromo || isSubmitting || createOrderMutation.isPending
+          }
         >
           {submitButtonText}
         </Button>
