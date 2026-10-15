@@ -6,6 +6,14 @@ Backend hiện được giả lập bằng Mock Service Worker (MSW), vì vậy 
 
 Đề bài gốc và acceptance criteria nằm trong [docs/ASSIGNMENT.md](docs/ASSIGNMENT.md).
 
+## Live demo
+
+Phiên bản production được deploy trên Vercel:
+
+**[https://parkpass-nine.vercel.app](https://parkpass-nine.vercel.app)**
+
+Ứng dụng demo sử dụng MSW để giả lập backend trực tiếp trên trình duyệt.
+
 ## Trạng thái hiện tại
 
 Dự án đã hoàn thành phần chức năng chính của M0–M3 và đang ở giai đoạn hoàn thiện UI trước khi chuyển sang M4.
@@ -28,7 +36,7 @@ Dự án đã hoàn thành phần chức năng chính của M0–M3 và đang �
 
 - Responsive checkout và rà soát responsive cho login/orders.
 - Visual QA toàn bộ màn hình ở 360px, 768px, 1280px và dark mode.
-- Accessibility audit, E2E, deploy và tài liệu M4.
+- Accessibility audit, E2E và tài liệu M4.
 
 ## Công nghệ
 
