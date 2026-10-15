@@ -1,0 +1,228 @@
+.emptyCart {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.cartItems {
+  display: flex;
+  flex-direction: column;
+}
+
+.cartTotal {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.cartTotalLabel {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
+.cartTotalPrice {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-xl);
+  font-variant-numeric: tabular-nums;
+}
+
+.checkoutLink {
+  display: inline-flex;
+  width: 100%;
+  height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background-color: var(--color-brand);
+  color: var(--color-brand-on);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.checkoutLink:hover {
+  background-color: var(--color-brand-hover);
+}
+
+.cartCaption {
+  margin: 0;
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
+  text-align: center;
+}
+
+.headerNav {
+  display: flex;
+  width: min(calc(100% - var(--space-16)), var(--container-max-width));
+  height: 100%;
+  align-items: center;
+  gap: var(--space-6);
+  margin: 0 auto;
+}
+
+.logo {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-lg);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.logoMark {
+  display: inline-flex;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background-color: var(--color-brand);
+  color: var(--color-brand-on);
+}
+
+.themeButton {
+  margin-left: auto;
+}
+
+.cartButton {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.cartBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  box-sizing: border-box;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-brand);
+  color: var(--color-brand-on);
+  font-size: var(--font-size-xs);
+  line-height: 1.125rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.loginLink {
+  display: inline-flex;
+  height: 2.75rem;
+  align-items: center;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--color-brand);
+  color: var(--color-brand-on);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.avatar {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background-color: var(--color-brand-soft);
+  color: var(--color-brand);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.mobileDetailHeader {
+  display: none;
+}
+
+@media (max-width: 47.999rem) {
+  .listHeader {
+    display: grid;
+    width: 100%;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: 3.5rem 3.75rem;
+    gap: 0 var(--space-2);
+    padding: 0 var(--space-4);
+  }
+
+  .listHeader .logo {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .listHeaderSearch {
+    width: 100%;
+    max-width: none;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    align-self: start;
+  }
+
+  .listHeader .cartButton {
+    margin-right: calc(var(--space-3) * -1);
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .listHeader .themeButton,
+  .listHeader .loginLink,
+  .listHeader .avatar,
+  .listHeader .accountAction {
+    display: none;
+  }
+
+  .detailDesktopHeader {
+    display: none;
+  }
+
+  .mobileDetailHeader {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0 var(--space-4);
+  }
+
+  .mobileBackLink {
+    display: inline-flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    margin-left: calc(var(--space-3) * -1);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .mobileBackLink:hover {
+    background-color: var(--color-surface-2);
+  }
+
+  .mobileHeaderTitle {
+    flex: 1;
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    font-weight: 600;
+  }
+
+  .mobileDetailHeader .cartButton {
+    margin-right: calc(var(--space-3) * -1);
+  }
+}

@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 import styles from "./Card.module.css";
+import ImageWithFallback from "./ImageWithFallback";
 
 interface ChildrenProps {
   children: ReactNode;
@@ -11,7 +12,12 @@ function CardRoot({ children }: ChildrenProps) {
 
 function CardImage({ className = "", alt, ...props }: ComponentProps<"img">) {
   return (
-    <img {...props} alt={alt} className={`${styles.image} ${className}`} />
+    <ImageWithFallback
+      {...props}
+      alt={alt ?? ""}
+      className={`${styles.image} ${className}`}
+      fallbackClassName={`${styles.image} ${className}`}
+    />
   );
 }
 

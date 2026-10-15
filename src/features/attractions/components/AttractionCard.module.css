@@ -1,41 +1,159 @@
+/* Khung dùng chung cho AttractionCard thật và skeleton */
 .card {
-  background-color: white;
-  border-radius: 12px;
-  border-color: gainsboro;
-  border-width: 1px;
-  border-style: solid;
-  text-align: left;
+  position: relative;
+  display: flex;
+  height: 100%;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Chỉ AttractionCard thật có class này */
+.cardLink {
+  color: var(--color-text);
+  text-decoration: none;
+  transition: box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.cardLink:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/*
+ * Focus ring được áp dụng bởi :focus-visible trong index.css:
+ *
+ * outline: 2px solid var(--color-focus);
+ * outline-offset: 2px;
+ */
+
+/* Vùng ảnh và category badge */
+.media {
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.image,
+.imageFallback {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 0;
 }
 
 .image {
-  width: 100%;
-  aspect-ratio: 3/2;
   object-fit: cover;
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.cardLink:hover .image {
+  transform: scale(1.02);
+}
+
+.category {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+}
+
+/* Toàn bộ nội dung bên dưới ảnh */
+.body {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+}
+
+/* Tên attraction: 18/28, tối đa hai dòng, cao 56px */
+.title {
+  display: -webkit-box;
+  height: calc(var(--line-height-lg) * 2);
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-lg);
+  font-weight: 600;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Tên công viên */
+.parkName {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Rating và giá */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-2);
+  margin-top: var(--space-2);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.star {
+  flex-shrink: 0;
+  color: var(--color-accent);
+  font-size: var(--font-size-base);
+  line-height: 1;
+}
+
+.ratingValue {
+  color: var(--color-text);
+  font-weight: 500;
 }
 
 .price {
-  color: green;
-  font-size: 16px;
-  font-weight: 700;
+  margin-left: auto;
+  color: var(--color-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
+/* Skeleton */
 .skeletonBody {
-  padding: 16px;
+  min-height: 9rem;
+  padding: var(--space-4);
 }
 
 .skeletonTitle {
   width: 70%;
-  height: 24px;
-  margin-bottom: 16px;
+  height: 1.5rem;
+  margin-bottom: var(--space-4);
 }
 
 .skeletonText {
   width: 100%;
-  height: 16px;
-  margin-bottom: 12px;
+  height: 1rem;
+  margin-bottom: var(--space-3);
 }
 
 .skeletonTextShort {
   width: 50%;
-  height: 16px;
+  height: 1rem;
 }

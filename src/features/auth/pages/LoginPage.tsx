@@ -3,6 +3,7 @@ import { useAuth } from "../authContext";
 import { useNavigate, useSearchParams } from "react-router";
 import Button from "@/components/ui/Button";
 import styles from "./LoginPage.module.css";
+import Field from "@/components/ui/Field";
 
 function safeRedirect(value: string | null): string {
   if (value === null) {
@@ -29,6 +30,7 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const isCredentialError = error === "Email hoặc mật khẩu không đúng";
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -53,35 +55,87 @@ export default function LoginPage() {
   }
   return (
     <section className={styles.page}>
-      <h1>Đăng nhập</h1>
+      <div className={styles.card}>
+        <h1 className={styles.title}>Đăng nhập</h1>
 
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <label htmlFor="login-email">Email</label>
-        <input
-          id="login-email"
-          type="email"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(event) => setEmail(event.currentTarget.value)}
-        />
+        <p className={styles.subtitle}>
+          Để xem đơn hàng và thanh toán nhanh hơn.
+        </p>
 
-        <label htmlFor="login-password">Mật khẩu</label>
-        <input
-          id="login-password"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(event) => setPassword(event.currentTarget.value)}
-        />
+        {error && (
+          <div className={styles.alert} role="alert">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4" />
+              <path d="M12 16h.01" />
+            </svg>
 
-        {error && <p role="alert">{error}</p>}
+            <span>
+              {isCredentialError ? (
+                <>
+                  <strong>Đăng nhập thất bại (401).</strong> {error}. Nội dung
+                  đã nhập được giữ nguyên.
+                </>
+              ) : (
+                <>
+                  <strong>Đăng nhập thất bại.</strong> {error}
+                </>
+              )}
+            </span>
+          </div>
+        )}
 
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
-        </Button>
-      </form>
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <Field
+            id="login-email"
+            label="Email"
+            type="email"
+            autoComplete="email"
+            placeholder="ban@vidu.vn"
+            required
+            disabled={isSubmitting}
+            value={email}
+            error={isCredentialError ? "Kiểm tra lại email" : undefined}
+            onChange={(event) => setEmail(event.currentTarget.value)}
+          />
+
+          <Field
+            id="login-password"
+            label="Mật khẩu"
+            type="password"
+            autoComplete="current-password"
+            placeholder="Tối thiểu 8 ký tự"
+            required
+            disabled={isSubmitting}
+            value={password}
+            onChange={(event) => setPassword(event.currentTarget.value)}
+          />
+
+          <Button
+            className={styles.submitButton}
+            type="submit"
+            size="lg"
+            loading={isSubmitting}
+          >
+            Đăng nhập
+          </Button>
+        </form>
+
+        <p className={styles.demoAccount}>
+          Tài khoản test: <strong>demo@parkpass.dev</strong> /{" "}
+          <strong>Passw0rd!</strong>
+        </p>
+      </div>
     </section>
   );
 }

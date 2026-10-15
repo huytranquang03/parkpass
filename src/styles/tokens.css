@@ -1,0 +1,134 @@
+:root {
+  /* Page and component backgrounds */
+  --color-bg: #ffffff; /* Nền chính của trang */
+  --color-surface: #f8fafc; /* Nền card, panel, drawer và modal */
+  --color-surface-2: #f1f5f9; /* Nền hover, skeleton và field disabled */
+
+  /* Borders */
+  --color-border: #e2e8f0; /* Viền trang trí, card và divider */
+  --color-border-input: #64748b; /* Viền input, select và checkbox */
+
+  /* Text */
+  --color-text: #0f172a; /* Heading và nội dung chính */
+  --color-text-muted: #475569; /* Nội dung phụ và label */
+  --color-text-subtle: #64748b; /* Placeholder và caption */
+
+  /* Brand */
+  --color-brand: #0f766e; /* Primary action, link và trạng thái active */
+  --color-brand-hover: #115e59; /* Hover của primary action */
+  --color-brand-soft: #f0fdfa; /* Nền chip và category badge */
+  --color-brand-on: #ffffff; /* Nội dung đặt trên nền brand */
+
+  /* Feedback and highlights */
+  --color-accent: #f59e0b; /* Sao rating và nội dung cần nhấn mạnh */
+  --color-success: #15803d; /* Trạng thái thành công và PAID */
+  --color-danger: #dc2626; /* Lỗi và hành động nguy hiểm */
+  --color-danger-hover: #b91c1c; /* Hover của danger action */
+  --color-warning: #b45309; /* Cảnh báo và trạng thái PENDING */
+  --color-focus: #0f766e; /* Focus ring toàn hệ thống */
+  --color-overlay-strong: rgb(2 6 23 / 88%); /* Nền tối phía sau ảnh phóng to */
+
+  /* Order status badge */
+  --color-status-pending-bg: #fef3c7;
+  --color-status-pending-text: #92400e;
+  --color-status-paid-bg: #dcfce7;
+  --color-status-paid-text: #166534;
+  --color-status-cancelled-bg: #fee2e2;
+  --color-status-cancelled-text: #991b1b;
+
+  /* Typography: Inter ưu tiên, system font làm fallback */
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+
+  --line-height-xs: 1rem;
+  --line-height-sm: 1.25rem;
+  --line-height-base: 1.5rem;
+  --line-height-lg: 1.75rem;
+  --line-height-xl: 1.75rem;
+  --line-height-2xl: 2rem;
+  --line-height-3xl: 2.375rem;
+
+  /* Spacing scale: một đơn vị bằng 4px */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Shape: badge/chip, field/button, card, overlay panel, pill */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Elevation: card mặc định, card hover, drawer/modal */
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 6%);
+  --shadow-md: 0 4px 12px rgb(15 23 42 / 8%);
+  --shadow-lg: 0 16px 40px rgb(15 23 42 / 16%);
+  --shadow-bottom-bar: 0 -4px 12px rgb(15 23 42 / 8%);
+
+  /* Motion: luôn kết hợp với prefers-reduced-motion trong global CSS */
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Layout: chiều rộng tối đa của nội dung desktop */
+  --container-max-width: 1200px;
+
+  /* Layers: thứ tự từ dropdown tới toast */
+  --z-dropdown: 10;
+  --z-header: 20;
+  --z-overlay: 40;
+  --z-drawer: 50;
+  --z-modal: 60;
+  --z-toast: 70;
+
+  /* Tên cũ — giữ tạm để UI hiện tại không bị hỏng */
+  --text: var(--color-text);
+  --bg: var(--color-bg);
+  --surface: var(--color-surface);
+  --border: var(--color-border);
+  --muted: var(--color-text-muted);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  /* Chỉ override token màu; spacing và cấu trúc không đổi theo theme */
+  --color-bg: #020617;
+  --color-surface: #0f172a;
+  --color-surface-2: #1e293b;
+  --color-border: #334155;
+  --color-border-input: #94a3b8;
+
+  --color-text: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --color-text-subtle: #94a3b8;
+
+  --color-brand: #2dd4bf;
+  --color-brand-hover: #5eead4;
+  --color-brand-soft: #134e4a;
+  --color-brand-on: #042f2e;
+
+  --color-accent: #fbbf24;
+  --color-success: #4ade80;
+  --color-danger: #f87171;
+  --color-warning: #fbbf24;
+  --color-focus: #2dd4bf;
+
+  color-scheme: dark;
+}

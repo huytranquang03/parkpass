@@ -1,26 +1,124 @@
 .button {
-  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   border: 1px solid transparent;
-  border-radius: 6px;
-
-  font: inherit;
+  border-radius: var(--radius-md);
   font-weight: 500;
-
   cursor: pointer;
+  white-space: nowrap;
+  /* property + duration + timing-function */
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+/* Size */
+.sm {
+  height: 2rem;
+  padding-inline: var(--space-3);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
+.md {
+  height: 2.75rem;
+  padding-inline: var(--space-4);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
+.lg {
+  height: 3rem;
+  padding-inline: var(--space-5);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
 }
 
 .primary {
-  background-color: #2563eb;
-  color: white;
+  background-color: var(--color-brand);
+  color: var(--color-brand-on);
+}
+
+.primary:not(:disabled):hover {
+  background-color: var(--color-brand-hover);
 }
 
 .secondary {
-  background-color: var(--surface);
-  color: var(--text);
-  border-color: var(--border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.secondary:not(:disabled):hover {
+  background-color: var(--color-surface-2);
+}
+
+.ghost {
+  color: var(--color-text);
+  background-color: transparent;
+}
+
+.ghost:not(:disabled):hover {
+  background-color: var(--color-surface-2);
+}
+
+.danger {
+  color: var(--color-bg);
+  background-color: var(--color-danger);
+}
+
+.danger:not(:disabled):hover {
+  background-color: var(--color-danger-hover);
+}
+
+.dangerSecondary {
+  border-color: var(--color-danger);
+  background-color: transparent;
+  color: var(--color-danger);
+}
+
+.dangerSecondary:not(:disabled):hover {
+  background-color: var(--color-status-cancelled-bg);
+}
+
+/* Interaction states */
+
+/* Trạng thái active nhưng chưa bám sát yêu cầu specs */
+.button:not(:disabled):active {
+  transform: translateY(1px);
 }
 
 .button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.iconOnly {
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+}
+
+/* Loading spinner */
+
+.spinner {
+  width: var(--space-4);
+  height: var(--space-4);
+  flex: 0 0 auto;
+
+  border: 2px solid currentcolor;
+  border-right-color: transparent;
+  border-radius: var(--radius-full);
+
+  animation: button-spin 800ms linear infinite;
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

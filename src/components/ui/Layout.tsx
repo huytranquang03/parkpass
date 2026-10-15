@@ -5,12 +5,28 @@ interface LayoutProps {
   header: ReactNode;
   aside?: ReactNode;
   children: ReactNode;
+  compactHeaderOnMobile?: boolean;
+  searchHeaderOnMobile?: boolean;
 }
 
-export default function Layout({ header, aside, children }: LayoutProps) {
+export default function Layout({
+  header,
+  aside,
+  children,
+  compactHeaderOnMobile = false,
+  searchHeaderOnMobile = false,
+}: LayoutProps) {
+  const headerClassName = [
+    styles.header,
+    compactHeaderOnMobile ? styles.compactHeader : "",
+    searchHeaderOnMobile ? styles.searchHeader : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <div className={styles.layout}>
-      <header className={styles.header}>{header}</header>
+      <header className={headerClassName}>{header}</header>
 
       <div className={styles.body}>
         {aside && <aside className={styles.aside}>{aside}</aside>}

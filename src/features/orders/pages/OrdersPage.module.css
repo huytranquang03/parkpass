@@ -1,0 +1,338 @@
+.page {
+  width: min(calc(100% - 2rem), var(--container-max-width));
+  margin: 0 auto;
+  padding: var(--space-8) 0 var(--space-10);
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-2xl);
+  font-weight: 700;
+}
+
+.orderList {
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  list-style: none;
+}
+
+.orderItem + .orderItem {
+  border-top: 1px solid var(--color-border);
+}
+
+.orderRow {
+  display: flex;
+  min-height: 4.5rem;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.orderRow:hover {
+  background-color: var(--color-surface-2);
+}
+
+.orderIdentity {
+  display: flex;
+  width: 12.5rem;
+  min-width: 0;
+  flex-shrink: 0;
+  flex-direction: column;
+}
+
+.orderId {
+  overflow: hidden;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.orderDate,
+.orderSummary {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
+.orderSummary {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.orderTotal {
+  width: 7.5rem;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-text-subtle);
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-6);
+  margin-top: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+}
+
+.tab {
+  flex-shrink: 0;
+  height: 2.75rem;
+  padding: 0 var(--space-1);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background-color: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tab:hover {
+  color: var(--color-brand);
+}
+
+.activeTab {
+  border-bottom-color: var(--color-brand);
+  color: var(--color-brand);
+}
+
+.filterEmpty {
+  margin: var(--space-6) 0 0;
+  padding: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.statePanel {
+  margin-top: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+}
+
+.primaryLink {
+  display: inline-flex;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--color-brand);
+  color: var(--color-brand-on);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.primaryLink:hover {
+  background-color: var(--color-brand-hover);
+}
+
+.skeletonId {
+  width: 8rem;
+  height: var(--space-6);
+}
+
+.skeletonDate {
+  width: 10rem;
+  height: var(--space-5);
+  margin-top: var(--space-1);
+}
+
+.skeletonSummary {
+  height: var(--space-5);
+  flex: 1;
+}
+
+.skeletonBadge {
+  width: 6rem;
+  height: var(--space-6);
+  border-radius: var(--radius-sm);
+}
+
+.skeletonTotal {
+  width: 7.5rem;
+  height: var(--space-6);
+}
+
+.skeletonChevron {
+  width: var(--space-5);
+  height: var(--space-5);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.statePanel {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+}
+
+.secondaryLink {
+  display: inline-flex;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.secondaryLink:hover {
+  background-color: var(--color-surface-2);
+}
+
+.skeletonBackLink {
+  width: 9rem;
+  height: 1.25rem;
+}
+
+.skeletonHeading {
+  width: min(100%, 32rem);
+  height: 2.75rem;
+  margin-top: var(--space-3);
+}
+
+.skeletonTable {
+  height: 10rem;
+  margin-top: var(--space-6);
+  border-radius: var(--radius-lg);
+}
+
+.skeletonDetails {
+  display: flex;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+.skeletonInfo {
+  height: 6.5rem;
+  flex: 1;
+  border-radius: var(--radius-lg);
+}
+
+.skeletonSummary {
+  width: 22.5rem;
+  height: 8rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 40rem) {
+  .page {
+    padding-top: var(--space-6);
+  }
+
+  .tabs {
+    gap: var(--space-4);
+  }
+
+  .orderList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+  }
+
+  .orderItem {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
+  }
+
+  .orderItem + .orderItem {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .orderRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-3) var(--space-4);
+    padding: var(--space-4);
+  }
+
+  .orderIdentity {
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+
+  .orderSummary {
+    grid-column: 1 / -1;
+    white-space: normal;
+  }
+
+  .orderTotal {
+    width: auto;
+    grid-column: 2;
+    grid-row: 3;
+    text-align: right;
+  }
+
+  .chevron {
+    display: none;
+  }
+
+  .skeletonSummary {
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+
+  .skeletonTotal {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+  }
+
+  .skeletonChevron {
+    display: none;
+  }
+}

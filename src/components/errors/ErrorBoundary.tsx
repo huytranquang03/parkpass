@@ -4,6 +4,7 @@ interface ErrorBoundaryProps {
   children: ReactNode;
   fallbackMessage?: string;
   onReset?: () => void;
+  renderFallback?: (reset: () => void) => ReactNode;
 }
 
 interface ErrorBoundaryState {
@@ -33,6 +34,10 @@ export default class ErrorBoundary extends Component<
 
   render() {
     if (this.state.hasError) {
+      if (this.props.renderFallback) {
+        return this.props.renderFallback(this.handleReset);
+      }
+
       return (
         <section>
           <h2>Đã xảy ra lỗi</h2>

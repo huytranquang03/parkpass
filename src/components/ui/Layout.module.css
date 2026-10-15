@@ -1,22 +1,40 @@
 .layout {
+  display: flex;
   min-height: 100vh;
+  flex-direction: column;
 }
 
 .header {
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  position: sticky;
+  z-index: var(--z-header);
+  top: 0;
+  height: 4rem;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-sm);
 }
 
 .body {
   display: flex;
+  flex: 1;
 }
 
 .aside {
-  width: 240px;
+  width: 15rem;
 }
 
 .main {
-  flex: 1;
   min-width: 0;
+  flex: 1;
+}
+
+@media (max-width: 47.999rem) {
+  .compactHeader {
+    height: 3.5rem;
+  }
+
+  .searchHeader {
+    height: 7.25rem;
+  }
 }

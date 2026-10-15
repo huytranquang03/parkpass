@@ -1,33 +1,96 @@
 .item {
   display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+}
+
+/* .item + .item {
+  border-top: 1px solid var(--color-border);
+} */
+
+.item:not(:first-child) {
+  border-top: 1px solid var(--color-border);
+}
+
+.information {
+  display: flex;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 0;
-  border-bottom: 1px solid #e5e7eb;
+  gap: var(--space-3);
+}
+
+.thumbnail,
+.thumbnailFallback {
+  width: 6rem;
+  height: 3.375rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+}
+
+.thumbnail {
+  object-fit: cover;
+}
+
+.thumbnailFallback {
+  overflow: hidden;
+}
+
+.details {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
 }
 
 .name {
-  margin: 0 0 4px;
-  font-size: 16px;
+  overflow: hidden;
+  margin: 0;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.ticketType,
-.price {
-  margin: 4px 0;
-  color: #64748b;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
+.ticketInformation {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
 }
 
 .removeButton {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  margin: -0.625rem -0.625rem 0 0;
+  padding: 0;
   border: 0;
-  background: transparent;
-  color: #dc2626;
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--color-text-muted);
   cursor: pointer;
+}
+
+.removeButton:hover {
+  background-color: var(--color-surface-2);
+  color: var(--color-danger);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.subtotal {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }

@@ -54,4 +54,36 @@ describe("ErrorBoundary", () => {
 
     expect(screen.getByText("Widget đã hoạt động")).toBeInTheDocument();
   });
+
+  it("supports a custom fallback with the same reset behavior", async () => {
+    const user = userEvent.setup();
+    let shouldThrow = true;
+
+    function RecoverableWidget() {
+      if (shouldThrow) {
+        throw new Error("Temporary failure");
+      }
+
+      return <p>Widget tùy chỉnh đã hoạt động</p>;
+    }
+
+    render(
+      <ErrorBoundary
+        renderFallback={(reset) => (
+          <button type="button" onClick={reset}>
+            Tải lại widget
+          </button>
+        )}
+      >
+        <RecoverableWidget />
+      </ErrorBoundary>,
+    );
+
+    shouldThrow = false;
+    await user.click(screen.getByRole("button", { name: "Tải lại widget" }));
+
+    expect(
+      screen.getByText("Widget tùy chỉnh đã hoạt động"),
+    ).toBeInTheDocument();
+  });
 });

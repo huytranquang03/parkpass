@@ -1,11 +1,66 @@
 .toast {
   position: fixed;
-  right: 24px;
-  bottom: 24px;
-  z-index: 1200;
-  padding: 14px 18px;
-  border-radius: 8px;
-  background: #166534;
-  color: white;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 20%);
+  top: var(--space-6);
+  right: var(--space-6);
+  z-index: var(--z-toast);
+  display: flex;
+  width: min(calc(100vw - 3rem), 23.75rem);
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  color: var(--color-bg);
+  box-shadow: var(--shadow-lg);
+}
+
+.success {
+  background-color: var(--color-success);
+}
+
+.error {
+  background-color: var(--color-danger);
+}
+
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.message {
+  min-width: 0;
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  font-weight: 500;
+}
+
+.closeButton {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  margin: -0.75rem -0.75rem -0.75rem 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  background-color: rgb(255 255 255 / 15%);
+}
+
+@media (max-width: 39.999rem) {
+  .toast {
+    top: var(--space-4);
+    right: var(--space-4);
+    left: var(--space-4);
+    width: auto;
+  }
 }

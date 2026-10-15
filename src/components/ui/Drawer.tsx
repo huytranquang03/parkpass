@@ -6,6 +6,8 @@ interface DrawerProps {
   open: boolean;
   title: string;
   children: ReactNode;
+  footer?: ReactNode;
+  placement?: "right" | "bottom";
   onClose: () => void;
 }
 
@@ -16,6 +18,8 @@ export default function Drawer({
   open,
   title,
   children,
+  footer,
+  placement = "right",
   onClose,
 }: DrawerProps) {
   const titleId = useId();
@@ -88,35 +92,43 @@ export default function Drawer({
   }
 
   return createPortal(
-    <div className={styles.overlay}>
+    <div
+      className={`${styles.overlay} ${
+        placement === "bottom" ? styles.bottomOverlay : ""
+      }`}
+    >
       <button
         type="button"
         className={styles.backdrop}
-        aria-label="Đóng giỏ hàng"
+        aria-label={`Đóng ${title}`}
+        tabIndex={-1}
         onClick={onClose}
       />
-
       <section
         ref={drawerRef}
-        className={styles.drawer}
+        className={`${styles.drawer} ${
+          placement === "bottom" ? styles.bottomDrawer : ""
+        }`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
       >
         <header className={styles.header}>
-          <h2 id={titleId}>{title}</h2>
-
+          <h2 id={titleId} className={styles.title}>
+            {title}
+          </h2>
           <button
             ref={closeButtonRef}
             type="button"
+            className={styles.closeButton}
             onClick={onClose}
-            aria-label="Đóng giỏ hàng"
+            aria-label={`Đóng ${title}`}
           >
-            ×
+            <span aria-hidden="true">×</span>
           </button>
         </header>
-
-        {children}
+        <div className={styles.body}>{children}</div>
+        {footer && <footer className={styles.footer}>{footer}</footer>}
       </section>
     </div>,
     document.body,

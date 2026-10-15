@@ -1,6 +1,13 @@
 import List from "@/components/ui/List";
 import { reviewsOptions } from "../queries";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import styles from "./ReviewsWidget.module.css";
+
+const dateFormatter = new Intl.DateTimeFormat("vi-VN", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
 
 interface ReviewsWidgetProps {
   attractionId: string;
@@ -24,21 +31,29 @@ export default function ReviewsWidget({ attractionId }: ReviewsWidgetProps) {
   const { data: reviews } = useSuspenseQuery(reviewsOptions(attractionId));
 
   return (
-    <section>
-      <h2>Đánh giá</h2>
-
+    <div className={styles.widget}>
       <List
         items={reviews}
-        renderEmpty={() => <p>Chưa có đánh giá nào.</p>}
+        renderEmpty={() => (
+          <p className={styles.empty}>Chưa có đánh giá nào.</p>
+        )}
         getKey={(review) => review.id}
         renderItem={(review) => (
-          <>
-            <strong>{review.author}</strong>
-            <p>Đánh giá: {review.rating}/5</p>
+          <article className={styles.review}>
+            <div className={styles.reviewHeader}>
+              <h3>{review.author}</h3>
+              <span className={styles.reviewRating}>
+                <span aria-hidden="true">★</span>
+                {review.rating}/5
+              </span>
+            </div>
             <p>{review.comment}</p>
-          </>
+            <time dateTime={review.createdAt}>
+              {dateFormatter.format(new Date(review.createdAt))}
+            </time>
+          </article>
         )}
-      ></List>
-    </section>
+      />
+    </div>
   );
 }

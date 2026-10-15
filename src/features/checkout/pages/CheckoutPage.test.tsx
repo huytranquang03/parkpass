@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -50,6 +56,18 @@ function renderCheckoutPage() {
   );
 }
 
+function getCheckoutSubmitButton() {
+  const form = document.querySelector<HTMLFormElement>("#checkout-form");
+
+  if (!form) {
+    throw new Error("Checkout form not found");
+  }
+
+  return within(form).getByRole("button", {
+    name: "Xác nhận đặt vé",
+  });
+}
+
 async function fillValidForm(
   user: ReturnType<typeof userEvent.setup>,
   promoCode = "",
@@ -63,10 +81,7 @@ async function fillValidForm(
   });
 
   if (promoCode) {
-    await user.type(
-      screen.getByLabelText("Mã khuyến mãi (không bắt buộc)"),
-      promoCode,
-    );
+    await user.type(screen.getByLabelText("Mã khuyến mãi"), promoCode);
   }
 
   await user.click(screen.getByLabelText("Tôi đồng ý với điều khoản"));
@@ -81,7 +96,7 @@ describe("CheckoutPage", () => {
     const user = userEvent.setup();
     renderCheckoutPage();
 
-    await user.click(screen.getByRole("button", { name: "Xác nhận đặt vé" }));
+    await user.click(getCheckoutSubmitButton());
 
     expect(await screen.findByText("Vui lòng nhập họ và tên")).toBeVisible();
     expect(screen.getByLabelText("Họ và tên")).toHaveFocus();
@@ -92,14 +107,12 @@ describe("CheckoutPage", () => {
     renderCheckoutPage();
     await fillValidForm(user, "UNKNOWN");
 
-    await user.click(screen.getByRole("button", { name: "Xác nhận đặt vé" }));
+    await user.click(getCheckoutSubmitButton());
 
     expect(
       await screen.findByText("Mã khuyến mãi không tồn tại"),
     ).toBeVisible();
-    expect(
-      screen.getByLabelText("Mã khuyến mãi (không bắt buộc)"),
-    ).toHaveFocus();
+    expect(screen.getByLabelText("Mã khuyến mãi")).toHaveFocus();
   });
 
   it("creates an order with a valid promo code and clears the cart", async () => {
@@ -107,7 +120,7 @@ describe("CheckoutPage", () => {
     renderCheckoutPage();
     await fillValidForm(user, "WELCOME10");
 
-    await user.click(screen.getByRole("button", { name: "Xác nhận đặt vé" }));
+    await user.click(getCheckoutSubmitButton());
 
     expect(
       await screen.findByRole("heading", { name: "Đặt vé thành công" }),
@@ -136,7 +149,7 @@ describe("CheckoutPage", () => {
     renderCheckoutPage();
     await fillValidForm(user);
 
-    await user.click(screen.getByRole("button", { name: "Xác nhận đặt vé" }));
+    await user.click(getCheckoutSubmitButton());
 
     expect(await screen.findByText("Email đã được sử dụng")).toBeVisible();
     expect(

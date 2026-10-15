@@ -1,11 +1,12 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { describe, expect, it } from "vitest";
 import Modal from "./Modal";
 
 function ModalHarness() {
   const [open, setOpen] = useState(false);
+  const safeActionRef = useRef<HTMLButtonElement>(null);
 
   return (
     <>
@@ -16,8 +17,13 @@ function ModalHarness() {
       <Modal
         open={open}
         title="Xác nhận thao tác"
+        description="Thao tác này không thể hoàn tác."
+        initialFocusRef={safeActionRef}
         onClose={() => setOpen(false)}
       >
+        <button ref={safeActionRef} type="button">
+          Quay lại
+        </button>
         <button type="button">Xác nhận</button>
       </Modal>
     </>
@@ -53,22 +59,32 @@ describe("Modal", () => {
     const dialog = screen.getByRole("dialog", {
       name: "Xác nhận thao tác",
     });
-    const closeButton = within(dialog).getByRole("button", {
-      name: "Đóng hộp thoại",
+    const safeActionButton = within(dialog).getByRole("button", {
+      name: "Quay lại",
     });
     const confirmButton = within(dialog).getByRole("button", {
       name: "Xác nhận",
     });
 
-    expect(closeButton).toHaveFocus();
+    expect(safeActionButton).toHaveFocus();
 
     await user.tab();
     expect(confirmButton).toHaveFocus();
 
     await user.tab();
-    expect(closeButton).toHaveFocus();
+    expect(safeActionButton).toHaveFocus();
 
     await user.tab({ shift: true });
     expect(confirmButton).toHaveFocus();
+  });
+
+  it("closes when the backdrop is clicked", async () => {
+    const user = userEvent.setup();
+    render(<ModalHarness />);
+
+    await user.click(screen.getByRole("button", { name: "Mở modal" }));
+    await user.click(screen.getByRole("button", { name: "Đóng hộp thoại" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });

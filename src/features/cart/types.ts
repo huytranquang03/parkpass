@@ -3,6 +3,7 @@ import type { TicketType } from "../attractions/types";
 export interface CartItem {
   attractionId: string;
   attractionName: string;
+  imageUrl?: string;
   ticketType: TicketType;
   price: number;
   quantity: number;

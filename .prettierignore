@@ -1,5 +1,6 @@
 pnpm-lock.yaml
 docs/ASSIGNMENT.md
+docs/design/mockups/
 public/mockServiceWorker.js
 dist/
 coverage/

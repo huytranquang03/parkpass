@@ -1,4 +1,10 @@
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { createPortal } from "react-dom";
 import styles from "./Modal.module.css";
 
@@ -6,17 +12,29 @@ interface ModalProps {
   open: boolean;
   title: string;
   children: ReactNode;
+  icon?: ReactNode;
+  description?: string;
+  initialFocusRef?: RefObject<HTMLButtonElement | null>;
   onClose: () => void;
 }
 
 const FOCUSABLE_SELECTOR =
   'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export default function Modal({ open, title, children, onClose }: ModalProps) {
+export default function Modal({
+  open,
+  title,
+  icon,
+  children,
+  description,
+  initialFocusRef,
+  onClose,
+}: ModalProps) {
   const titleId = useId();
+  const descriptionId = useId();
 
   const modalRef = useRef<HTMLElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  // const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -26,13 +44,28 @@ export default function Modal({ open, title, children, onClose }: ModalProps) {
       previousFocusRef.current = document.activeElement;
     }
 
-    closeButtonRef.current?.focus();
+    // closeButtonRef.current?.focus();
+    const firstFocusableElement =
+      modalRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+
+    // (initialFocusRef?.current ?? firstFocusableElement)?.focus();
+    let elementToFocus;
+
+    if (initialFocusRef?.current != null) {
+      elementToFocus = initialFocusRef.current;
+    } else {
+      elementToFocus = firstFocusableElement;
+    }
+
+    if (elementToFocus) {
+      elementToFocus.focus();
+    }
 
     return () => {
       previousFocusRef.current?.focus();
       previousFocusRef.current = null;
     };
-  }, [open]);
+  }, [open, initialFocusRef]);
 
   useEffect(() => {
     if (!open) return;
@@ -82,36 +115,75 @@ export default function Modal({ open, title, children, onClose }: ModalProps) {
 
   if (!open) return null;
 
+  // return createPortal(
+  //   <div className={styles.overlay}>
+  //     <button
+  //       type="button"
+  //       className={styles.backdrop}
+  //       aria-label="Đóng hộp thoại"
+  //       onClick={onClose}
+  //     />
+
+  //     <section
+  //       className={styles.modal}
+  //       role="dialog"
+  //       aria-modal="true"
+  //       ref={modalRef}
+  //       aria-labelledby={titleId}
+  //     >
+  //       <header className={styles.header}>
+  //         <h2 id={titleId}>{title}</h2>
+
+  //         <button
+  //           type="button"
+  //           aria-label="Đóng hộp thoại"
+  //           onClick={onClose}
+  //           ref={closeButtonRef}
+  //         >
+  //           ×
+  //         </button>
+  //       </header>
+
+  //       {children}
+  //     </section>
+  //   </div>,
+  //   document.body,
+  // );
+
   return createPortal(
     <div className={styles.overlay}>
       <button
         type="button"
         className={styles.backdrop}
         aria-label="Đóng hộp thoại"
+        tabIndex={-1}
         onClick={onClose}
       />
 
       <section
+        ref={modalRef}
         className={styles.modal}
         role="dialog"
         aria-modal="true"
-        ref={modalRef}
         aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
       >
-        <header className={styles.header}>
-          <h2 id={titleId}>{title}</h2>
+        <div className={styles.heading}>
+          {icon}
 
-          <button
-            type="button"
-            aria-label="Đóng hộp thoại"
-            onClick={onClose}
-            ref={closeButtonRef}
-          >
-            ×
-          </button>
-        </header>
+          <div className={styles.headingText}>
+            <h2 id={titleId} className={styles.title}>
+              {title}
+            </h2>
 
-        {children}
+            {description && (
+              <p id={descriptionId} className={styles.description}>
+                {description}
+              </p>
+            )}
+          </div>
+        </div>
+        <div className={styles.content}>{children}</div>
       </section>
     </div>,
     document.body,

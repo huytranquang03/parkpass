@@ -3,15 +3,18 @@ import AttractionCardSkeleton from "../components/AttractionCardSkeleton";
 import styles from "./AttractionListPage.module.css";
 import type { Attraction } from "../types";
 import { memo } from "react";
+import ErrorState from "@/components/ui/ErrorState";
+import Button from "@/components/ui/Button";
+import EmptyState from "@/components/ui/EmptyState";
 
-const SKELETON_COUNT = 12;
+const SKELETON_COUNT = 8;
 
 export type AttractionListStatus = "loading" | "error" | "success";
 
 interface AttractionListContentProps {
   pageStatus: AttractionListStatus;
   attractions: Attraction[];
-  pageError: string;
+  // pageError: string;
   currentPage: number;
   totalPages: number;
   isUpdating: boolean;
@@ -24,7 +27,7 @@ interface AttractionListContentProps {
 function AttractionListContent({
   pageStatus,
   attractions,
-  pageError,
+  // pageError,
   currentPage,
   totalPages,
   isUpdating,
@@ -33,6 +36,14 @@ function AttractionListContent({
   onClearFilters,
   onPageChange,
 }: AttractionListContentProps) {
+  const gridClassName = isUpdating
+    ? `${styles.grid} ${styles.gridUpdating}`
+    : styles.grid;
+
+  const pageNumbers = Array.from(
+    { length: totalPages },
+    (_, index) => index + 1,
+  );
   return (
     <>
       {pageStatus === "loading" && (
@@ -47,7 +58,7 @@ function AttractionListContent({
         </div>
       )}
 
-      {pageStatus === "error" && (
+      {/* {pageStatus === "error" && (
         <div className={styles.errorState}>
           <p role="alert">{pageError}</p>
 
@@ -55,27 +66,45 @@ function AttractionListContent({
             Thử lại
           </button>
         </div>
+      )} */}
+
+      {pageStatus === "error" && (
+        <ErrorState
+          title="Không tải được dữ liệu"
+          description="Kết nối có vấn đề hoặc hệ thống đang bận. Thử lại giúp mình nhé."
+          action={
+            <Button variant="secondary" onClick={onRetry}>
+              Thử lại
+            </Button>
+          }
+        />
       )}
 
       {pageStatus === "success" && isUpdating && (
-        <p role="status" aria-live="polite">
+        <span
+          className={styles.visuallyHidden}
+          role="status"
+          aria-live="polite"
+        >
           Đang cập nhật danh sách...
-        </p>
+        </span>
       )}
 
       {pageStatus === "success" && attractions.length === 0 && (
-        <div className={styles.emptyState}>
-          <h2>Không tìm thấy trải nghiệm</h2>
-          <p>Hãy thử thay đổi từ khoá hoặc bộ lọc</p>
-          <button type="button" onClick={onClearFilters}>
-            Xoá bộ lọc
-          </button>
-        </div>
+        <EmptyState
+          title="Không tìm thấy attraction nào"
+          description="Thử bỏ bớt bộ lọc hoặc đổi từ khóa tìm kiếm."
+          action={
+            <Button variant="secondary" onClick={onClearFilters}>
+              Xóa bộ lọc
+            </Button>
+          }
+        />
       )}
 
       {pageStatus === "success" && attractions.length > 0 && (
         <>
-          <div className={styles.grid}>
+          <div className={gridClassName} aria-busy={isUpdating || undefined}>
             {attractions.map((item) => (
               <AttractionCard
                 key={item.id}
@@ -87,25 +116,62 @@ function AttractionListContent({
           {totalPages > 1 && (
             <nav aria-label="Phân trang" className={styles.pagination}>
               <button
+                className={styles.paginationButton}
                 type="button"
+                aria-label="Trang trước"
                 disabled={isUpdating || currentPage === 1}
-                onClick={() => {
-                  onPageChange(currentPage - 1);
-                }}
+                onClick={() => onPageChange(currentPage - 1)}
               >
-                Trang trước
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
               </button>
-              <span>
-                Trang {currentPage} / {totalPages}
-              </span>
+
+              {pageNumbers.map((page) => (
+                <button
+                  className={`${styles.paginationButton} ${
+                    page === currentPage ? styles.paginationButtonActive : ""
+                  }`}
+                  type="button"
+                  key={page}
+                  aria-current={page === currentPage ? "page" : undefined}
+                  disabled={isUpdating}
+                  onClick={() => onPageChange(page)}
+                >
+                  {page}
+                </button>
+              ))}
+
               <button
+                className={styles.paginationButton}
                 type="button"
-                disabled={isUpdating || currentPage >= totalPages}
-                onClick={() => {
-                  onPageChange(currentPage + 1);
-                }}
+                aria-label="Trang sau"
+                disabled={isUpdating || currentPage === totalPages}
+                onClick={() => onPageChange(currentPage + 1)}
               >
-                Trang sau
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
               </button>
             </nav>
           )}

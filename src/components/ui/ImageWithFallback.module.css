@@ -1,0 +1,13 @@
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-surface-2);
+  color: var(--color-text-subtle);
+}
+
+.icon {
+  width: var(--space-8);
+  height: var(--space-8);
+  flex: 0 0 auto;
+}

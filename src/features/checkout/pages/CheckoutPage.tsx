@@ -35,6 +35,11 @@ import { useState } from "react";
 
 // type TextFieldName = "fullName" | "email" | "phone" | "visitDate" | "promoCode";
 
+interface PromoCodeResponse {
+  code: string;
+  discountPercent: number;
+}
+
 const CHECKOUT_FIELD_ORDER: Array<keyof CheckoutFormValues> = [
   "fullName",
   "email",
@@ -43,6 +48,15 @@ const CHECKOUT_FIELD_ORDER: Array<keyof CheckoutFormValues> = [
   "promoCode",
   "acceptTerms",
 ];
+
+const CHECKOUT_FIELD_LABELS: Record<keyof CheckoutFormValues, string> = {
+  fullName: "Họ và tên",
+  email: "Email",
+  phone: "Số điện thoại",
+  visitDate: "Ngày tham quan",
+  promoCode: "Mã khuyến mãi",
+  acceptTerms: "Điều khoản sử dụng",
+};
 
 const INITIAL_FORM_VALUES: CheckoutFormValues = {
   fullName: "",
@@ -56,6 +70,8 @@ const INITIAL_FORM_VALUES: CheckoutFormValues = {
 export default function CheckoutPage() {
   // const [values, setValues] = useState<CheckoutFormValues>(INITIAL_FORM_VALUES);
   // const [errors, setErrors] = useState<CheckoutFormErrors>({});
+
+  const [discountPercent, setDiscountPercent] = useState(0);
 
   const {
     register,
@@ -93,6 +109,8 @@ export default function CheckoutPage() {
     },
   });
 
+  const discountAmount = Math.round((totalPrice * discountPercent) / 100);
+
   // const fullNameRef = useRef<HTMLInputElement>(null);
   // const emailRef = useRef<HTMLInputElement>(null);
   // const phoneRef = useRef<HTMLInputElement>(null);
@@ -109,6 +127,12 @@ export default function CheckoutPage() {
     submitButtonText = "Đang tạo đơn...";
   }
 
+  const isCheckoutPending =
+    isCheckingPromo || isSubmitting || createOrderMutation.isPending;
+
+  const invalidFields = CHECKOUT_FIELD_ORDER.filter(
+    (field) => errors[field]?.message,
+  );
   // if (isCheckingPromo) {
   //   submitButtonText = "Đang kiểm tra mã...";
   // } else if (createOrderMutation.isPending) {
@@ -208,7 +232,11 @@ export default function CheckoutPage() {
         if (!response.ok) {
           throw new Error("Không kiểm tra được mã. Vui lòng thử lại");
         }
-        setPromoMessage("Mã khuyến mãi hợp lệ");
+        const promoResult = (await response.json()) as PromoCodeResponse;
+        setDiscountPercent(promoResult.discountPercent);
+        setPromoMessage(`Đã áp dụng giảm ${promoResult.discountPercent}%`);
+
+        // setPromoMessage("Mã khuyến mãi hợp lệ");
       } catch (error) {
         let message: string;
         if (error instanceof Error) {
@@ -230,6 +258,7 @@ export default function CheckoutPage() {
       }
     } else {
       setPromoMessage(null);
+      setDiscountPercent(0);
     }
 
     if (!token) {
@@ -383,157 +412,273 @@ export default function CheckoutPage() {
 
   return (
     <section className={styles.page}>
-      <h1>Thông tin đặt vé</h1>
-      <TicketSummaryCard items={items} totalPrice={totalPrice} />
-      <form
-        className={styles.form}
-        noValidate
-        onSubmit={handleSubmit(handleCheckoutSubmit)}
-      >
-        <div className={styles.field}>
-          <label htmlFor="full-name">Họ và tên</label>
-          <input
-            id="full-name"
-            // name="fullName"
-            // ref={fullNameRef}
-            type="text"
-            // value={values.fullName}
-            // onChange={(event) =>
-            //   handleTextChange("fullName", event.currentTarget.value)
-            // }
-            {...register("fullName")}
+      <h1 className={styles.pageTitle}>Thanh toán</h1>
+      {/* <TicketSummaryCard items={items} totalPrice={totalPrice} /> */}
+      <div className={styles.checkoutLayout}>
+        <div className={styles.summaryColumn}>
+          <TicketSummaryCard
+            items={items}
+            subtotal={totalPrice}
+            discount={discountAmount}
+            isCheckingPromo={isCheckingPromo}
+            action={
+              <Button
+                className={styles.desktopSubmit}
+                type="submit"
+                form="checkout-form"
+                size="lg"
+                loading={isCheckoutPending}
+              >
+                {submitButtonText}
+              </Button>
+            }
           />
-          {errors.fullName && (
-            <p id="full-name-error" className={styles.error}>
-              {/* {errors.fullName} */}
-              {errors.fullName.message}
-            </p>
-          )}
         </div>
-        <div className={styles.field}>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            // name="email"
-            // ref={emailRef}
-            type="email"
-            // value={values.email}
-            // onChange={(event) =>
-            //   handleTextChange("email", event.currentTarget.value)
-            // }
-            {...register("email")}
-          />
-          {errors.email && (
-            <p className={styles.error} id="email-error">
-              {/* {errors.email} */}
-              {errors.email.message}
-            </p>
-          )}
-        </div>
-        <div className={styles.field}>
-          <label htmlFor="phone">Số điện thoại</label>
-          <input
-            id="phone"
-            // name="phone"
-            // ref={phoneRef}
-            type="tel"
-            // value={values.phone}
-            // onChange={(event) =>
-            //   handleTextChange("phone", event.currentTarget.value)
-            // }
-            {...register("phone")}
-          />
-          {errors.phone && (
-            <p className={styles.error} id="phone-error">
-              {/* {errors.phone} */}
-              {errors.phone.message}
-            </p>
-          )}
-        </div>
-        <div className={styles.field}>
-          <label htmlFor="visit-date">Ngày tham quan</label>
-          <input
-            id="visit-date"
-            // name="visitDate"
-            // ref={visitDateRef}
-            type="date"
-            // value={values.visitDate}
-            // onChange={(event) =>
-            //   handleTextChange("visitDate", event.currentTarget.value)
-            // }
-            {...register("visitDate")}
-          />
-          {errors.visitDate && (
-            <p className={styles.error} id="visit-date-error">
-              {/* {errors.visitDate} */}
-              {errors.visitDate.message}
-            </p>
-          )}
-        </div>
-        <div className={styles.field}>
-          <label htmlFor="promo-code">Mã khuyến mãi (không bắt buộc)</label>
-          <input
-            id="promo-code"
-            // name="promoCode"
-            // ref={promoCodeRef}
-            // disabled={isCheckingPromo}
-            readOnly={isCheckingPromo}
-            type="text"
-            // value={values.promoCode}
-            // onChange={(event) =>
-            //   handleTextChange("promoCode", event.currentTarget.value)
-            // }
-            {...register("promoCode", {
-              onChange: () => {
-                setPromoMessage(null);
-                clearErrors("promoCode");
-              },
-            })}
-          />
-          {errors.promoCode && (
-            <p id="promo-code-error" className={styles.error}>
-              {/* {errors.promoCode} */}
-              {errors.promoCode.message}
+        <form
+          id="checkout-form"
+          className={styles.form}
+          noValidate
+          onSubmit={handleSubmit(handleCheckoutSubmit)}
+        >
+          {submitError && (
+            <p className={styles.submitError} role="alert">
+              {submitError}
             </p>
           )}
 
-          {promoMessage && <p role="status">{promoMessage}</p>}
-        </div>
-        <label className={styles.terms}>
-          <input
-            id="acceptTerms"
-            // name="acceptTerms"
-            // ref={acceptTermsRef}
-            type="checkbox"
-            // checked={values.acceptTerms}
-            // onChange={(event) => {
-            //   const checked = event.currentTarget.checked;
-            //   setValues((currentValue) => ({
-            //     ...currentValue,
-            //     acceptTerms: checked,
-            //   }));
-            // }}
-            {...register("acceptTerms")}
-          />
-          Tôi đồng ý với điều khoản
-        </label>
-        {errors.acceptTerms && (
-          <p className={styles.error} id="accept-terms-error">
-            {/* {errors.acceptTerms} */}
-            {errors.acceptTerms.message}
-          </p>
-        )}
-        {submitError && <p role="alert">{submitError}</p>}
-        <Button
-          type="submit"
-          // disabled={isCheckingPromo || createOrderMutation.isPending}
-          disabled={
-            isCheckingPromo || isSubmitting || createOrderMutation.isPending
-          }
-        >
-          {submitButtonText}
-        </Button>
-      </form>
+          {invalidFields.length > 0 && (
+            <div
+              className={styles.validationSummary}
+              role="alert"
+              aria-labelledby="validation-summary-title"
+            >
+              <p
+                className={styles.validationTitle}
+                id="validation-summary-title"
+              >
+                Vui lòng kiểm tra lại các thông tin sau:
+              </p>
+
+              <ul className={styles.validationList}>
+                {invalidFields.map((field) => (
+                  <li key={field}>
+                    <button
+                      className={styles.validationLink}
+                      type="button"
+                      onClick={() => setFocus(field)}
+                    >
+                      {CHECKOUT_FIELD_LABELS[field]}: {errors[field]?.message}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <section
+            className={styles.formGroup}
+            aria-labelledby="customer-information-title"
+          >
+            <h2 className={styles.groupTitle} id="customer-information-title">
+              Thông tin người đặt
+            </h2>
+
+            <div className={styles.field}>
+              <label htmlFor="full-name">Họ và tên</label>
+              <input
+                id="full-name"
+                // name="fullName"
+                // ref={fullNameRef}
+                type="text"
+                // value={values.fullName}
+                // onChange={(event) =>
+                //   handleTextChange("fullName", event.currentTarget.value)
+                // }
+                {...register("fullName")}
+                aria-invalid={errors.fullName ? true : undefined}
+                aria-describedby={
+                  errors.fullName ? "full-name-error" : undefined
+                }
+              />
+              {errors.fullName && (
+                <p id="full-name-error" className={styles.error}>
+                  {/* {errors.fullName} */}
+                  {errors.fullName.message}
+                </p>
+              )}
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                // name="email"
+                // ref={emailRef}
+                type="email"
+                // value={values.email}
+                // onChange={(event) =>
+                //   handleTextChange("email", event.currentTarget.value)
+                // }
+                {...register("email")}
+                aria-invalid={errors.email ? true : undefined}
+                aria-describedby={errors.email ? "email-error" : undefined}
+              />
+              {errors.email && (
+                <p className={styles.error} id="email-error">
+                  {/* {errors.email} */}
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="phone">Số điện thoại</label>
+              <input
+                id="phone"
+                // name="phone"
+                // ref={phoneRef}
+                type="tel"
+                // value={values.phone}
+                // onChange={(event) =>
+                //   handleTextChange("phone", event.currentTarget.value)
+                // }
+                {...register("phone")}
+                aria-invalid={errors.phone ? true : undefined}
+                aria-describedby={errors.phone ? "phone-error" : undefined}
+              />
+              {errors.phone && (
+                <p className={styles.error} id="phone-error">
+                  {/* {errors.phone} */}
+                  {errors.phone.message}
+                </p>
+              )}
+            </div>
+          </section>
+
+          <section
+            className={styles.formGroup}
+            aria-labelledby="trip-information-title"
+          >
+            <h2 className={styles.groupTitle} id="trip-information-title">
+              Thông tin chuyến đi
+            </h2>
+
+            <div className={styles.field}>
+              <label htmlFor="visit-date">Ngày tham quan</label>
+              <input
+                id="visit-date"
+                // name="visitDate"
+                // ref={visitDateRef}
+                type="date"
+                // value={values.visitDate}
+                // onChange={(event) =>
+                //   handleTextChange("visitDate", event.currentTarget.value)
+                // }
+                {...register("visitDate")}
+                aria-invalid={errors.visitDate ? true : undefined}
+                aria-describedby={
+                  errors.visitDate ? "visit-date-error" : undefined
+                }
+              />
+              {errors.visitDate && (
+                <p className={styles.error} id="visit-date-error">
+                  {/* {errors.visitDate} */}
+                  {errors.visitDate.message}
+                </p>
+              )}
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="promo-code">Mã khuyến mãi</label>
+              <div className={styles.inputControl}>
+                <input
+                  id="promo-code"
+                  className={isCheckingPromo ? styles.inputLoading : undefined}
+                  // name="promoCode"
+                  // ref={promoCodeRef}
+                  // disabled={isCheckingPromo}
+                  readOnly={isCheckingPromo}
+                  type="text"
+                  // value={values.promoCode}
+                  // onChange={(event) =>
+                  //   handleTextChange("promoCode", event.currentTarget.value)
+                  // }
+                  {...register("promoCode", {
+                    onChange: () => {
+                      setPromoMessage(null);
+                      setDiscountPercent(0);
+                      clearErrors("promoCode");
+                    },
+                  })}
+                  aria-invalid={errors.promoCode ? true : undefined}
+                  aria-describedby={
+                    errors.promoCode ? "promo-code-error" : undefined
+                  }
+                />
+                {isCheckingPromo && (
+                  <span className={styles.inputSpinner} aria-hidden="true" />
+                )}
+              </div>
+              {errors.promoCode && (
+                <p id="promo-code-error" className={styles.error}>
+                  {/* {errors.promoCode} */}
+                  {errors.promoCode.message}
+                </p>
+              )}
+
+              {promoMessage && (
+                <p
+                  className={styles.helper}
+                  id="promo-code-status"
+                  role="status"
+                >
+                  {promoMessage}
+                </p>
+              )}
+            </div>
+
+            <div className={styles.termsField}>
+              <label className={styles.terms}>
+                <input
+                  id="acceptTerms"
+                  // name="acceptTerms"
+                  // ref={acceptTermsRef}
+                  type="checkbox"
+                  // checked={values.acceptTerms}
+                  // onChange={(event) => {
+                  //   const checked = event.currentTarget.checked;
+                  //   setValues((currentValue) => ({
+                  //     ...currentValue,
+                  //     acceptTerms: checked,
+                  //   }));
+                  // }}
+                  {...register("acceptTerms")}
+                  aria-invalid={errors.acceptTerms ? true : undefined}
+                  aria-describedby={
+                    errors.acceptTerms ? "accept-terms-error" : undefined
+                  }
+                />
+                Tôi đồng ý với điều khoản
+              </label>
+              {errors.acceptTerms && (
+                <p className={styles.error} id="accept-terms-error">
+                  {/* {errors.acceptTerms} */}
+                  {errors.acceptTerms.message}
+                </p>
+              )}
+            </div>
+          </section>
+
+          <Button
+            className={styles.mobileSubmit}
+            type="submit"
+            // disabled={isCheckingPromo || createOrderMutation.isPending}
+            disabled={
+              isCheckingPromo || isSubmitting || createOrderMutation.isPending
+            }
+            loading={isCheckoutPending}
+          >
+            {submitButtonText}
+          </Button>
+        </form>
+      </div>
     </section>
   );
 }

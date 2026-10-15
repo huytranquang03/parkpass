@@ -1,32 +1,309 @@
 .page {
-  max-width: 1200px;
+  display: flex;
+  width: min(calc(100% - var(--space-16)), var(--container-max-width));
+  align-items: flex-start;
+  gap: var(--space-6);
   margin: 0 auto;
-  padding: 24px;
+  padding: var(--space-6) 0 var(--space-10);
+}
+
+.filterSidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.desktopFilters {
+  position: sticky;
+  top: 5rem;
+  width: 16rem;
+  flex: 0 0 16rem;
+}
+
+.drawerFilters {
+  width: 100%;
+  padding: var(--space-4) 0 var(--space-6);
+}
+
+.filterTitle {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-xl);
+  font-weight: 600;
+}
+
+.resultsArea {
+  min-width: 0;
+  flex: 1;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 24px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
-.input {
-  box-sizing: border-box;
-  height: 44px;
-  width: 360px;
-  padding: 0 12px;
-  margin: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.filterLabel,
+.filterLegend {
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  font-weight: 500;
+}
+
+.filterSelect,
+.sortSelect {
+  height: 2.75rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
 }
 
 .filterGroup {
-  margin: 10px 0;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  flex-direction: column;
+  gap: 0;
+}
+
+.filterLegend {
+  margin-bottom: var(--space-2);
+}
+
+.filterOption {
+  display: flex;
+  min-height: 1.75rem;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  cursor: pointer;
+}
+
+.filterCheckbox,
+.filterRadio {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0;
+  accent-color: var(--color-brand);
+}
+
+.toolbar {
+  display: flex;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.toolbarActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.toolbar .filterButton {
+  display: none;
+}
+
+.resultCount {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
+.sortField {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.sortSelect {
+  min-width: 12rem;
+}
+
+.selectControl {
+  position: relative;
+  display: block;
+}
+
+.filterSelect {
+  width: 100%;
+  appearance: none;
+  padding: 0 var(--space-10) 0 var(--space-3);
+}
+
+.selectChevron {
+  position: absolute;
+  top: 50%;
+  right: var(--space-3);
+  color: var(--color-text-subtle);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.chipRow {
+  display: flex;
+  min-height: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.chipRowLabel {
+  margin-right: var(--space-1);
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
+}
+
+.filterChip {
+  display: inline-flex;
+  height: 2rem;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-1) 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-brand-soft);
+  color: var(--color-brand);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  font-weight: 500;
+}
+
+.removeChipButton {
+  display: inline-flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.removeChipButton:hover {
+  background-color: var(--color-surface-2);
+}
+
+.gridUpdating {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  margin: -1px;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .pagination {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 30px 0 100px 0;
+  gap: var(--space-2);
+  margin-top: var(--space-8);
+}
+
+.paginationButton {
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 2.5rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.paginationButton:not(:disabled):not(.paginationButtonActive):hover {
+  background-color: var(--color-surface-2);
+}
+
+.paginationButtonActive {
+  border-color: var(--color-brand);
+  background-color: var(--color-brand);
+  color: var(--color-brand-on);
+  font-weight: 600;
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 79.999rem) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 63.999rem) {
+  .page {
+    width: min(calc(100% - var(--space-12)), var(--container-max-width));
+    gap: 0;
+  }
+
+  .desktopFilters {
+    display: none;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+
+  .toolbar .filterButton {
+    display: inline-flex;
+  }
+
+  .clearFiltersButton {
+    display: none;
+  }
+}
+
+@media (max-width: 47.999rem) {
+  .page {
+    width: calc(100% - var(--space-8));
+    padding: var(--space-3) 0 var(--space-8);
+  }
+}
+
+@media (max-width: 39.999rem) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
